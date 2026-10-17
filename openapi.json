@@ -315,6 +315,7 @@
             "description": "Items per page, 1–100. Defaults to 25.",
             "x-description-es": "Elementos por página, de 1 a 100. Por defecto, 25.",
             "schema": {
+              "default": 25,
               "type": "integer",
               "minimum": 1,
               "maximum": 100
@@ -665,6 +666,7 @@
             "description": "Items per page, 1–100. Defaults to 25.",
             "x-description-es": "Elementos por página, de 1 a 100. Por defecto, 25.",
             "schema": {
+              "default": 25,
               "type": "integer",
               "minimum": 1,
               "maximum": 100
@@ -1306,6 +1308,7 @@
             "description": "Items per page, 1–100. Defaults to 25.",
             "x-description-es": "Elementos por página, de 1 a 100. Por defecto, 25.",
             "schema": {
+              "default": 25,
               "type": "integer",
               "minimum": 1,
               "maximum": 100
@@ -1423,6 +1426,7 @@
             "description": "Items per page, 1–100. Defaults to 25.",
             "x-description-es": "Elementos por página, de 1 a 100. Por defecto, 25.",
             "schema": {
+              "default": 25,
               "type": "integer",
               "minimum": 1,
               "maximum": 100
@@ -1616,6 +1620,7 @@
             "description": "Items per page, 1–100. Defaults to 25.",
             "x-description-es": "Elementos por página, de 1 a 100. Por defecto, 25.",
             "schema": {
+              "default": 25,
               "type": "integer",
               "minimum": 1,
               "maximum": 100
@@ -1813,6 +1818,7 @@
             "description": "Items per page, 1–100. Defaults to 25.",
             "x-description-es": "Elementos por página, de 1 a 100. Por defecto, 25.",
             "schema": {
+              "default": 25,
               "type": "integer",
               "minimum": 1,
               "maximum": 100
@@ -2028,6 +2034,7 @@
             "description": "Items per page, 1–100. Defaults to 25.",
             "x-description-es": "Elementos por página, de 1 a 100. Por defecto, 25.",
             "schema": {
+              "default": 25,
               "type": "integer",
               "minimum": 1,
               "maximum": 100
@@ -2197,8 +2204,8 @@
         ],
         "summary": "Check that the API is up",
         "x-summary-es": "Comprueba que la API está disponible",
-        "description": "Tells you whether the API is up. It needs no key and takes no query string: any parameter, even a cache-buster, answers `400 invalid_request`. The `Totem-Release` response header names the release that answered.",
-        "x-description-es": "Indica si la API está disponible. No necesita clave ni admite cadena de consulta: cualquier parámetro, incluso uno para evitar la caché, recibe `400 invalid_request`. La cabecera de respuesta `Totem-Release` indica la versión que respondió.",
+        "description": "Tells you whether the API is up; call it with `GET`, because the firewall in front of the API answers any other method, `HEAD` included, with a plain `404`. It needs no key and takes no query string: any parameter, even a cache-buster, answers `400 invalid_request`. The `Totem-Release` response header names the release that answered.",
+        "x-description-es": "Indica si la API está disponible; llama a este endpoint con `GET`, porque el cortafuegos que protege la API responde a cualquier otro método, `HEAD` incluido, con un `404` simple. No necesita clave ni admite cadena de consulta: cualquier parámetro, incluso uno para evitar la caché, recibe `400 invalid_request`. La cabecera de respuesta `Totem-Release` indica la versión que respondió.",
         "security": [],
         "responses": {
           "200": {
@@ -2256,8 +2263,8 @@
         "name": "Totem-Team",
         "in": "header",
         "required": false,
-        "description": "The team to read, as a `team_…` id. Omit it when the key reads one team; it is required when the key reads several (`400 team_required`). When you send it, it must name a team the key reads: a malformed id gets `400 invalid_request`, and a team outside the key gets `404 team_not_accessible`.",
-        "x-description-es": "El equipo que se lee, como identificador `team_…`. Omítelo si la clave lee un solo equipo; es obligatorio si lee varios (`400 team_required`). Si lo envías, debe indicar un equipo que la clave lee: un identificador mal formado recibe `400 invalid_request`, y un equipo fuera de la clave, `404 team_not_accessible`.",
+        "description": "The team to read, as a `team_…` id. Omit it when the key reads one team; it is required when the key reads several (`400 team_required`). When you send it, it must name a team the key reads: a malformed id gets `400 invalid_request`, and a team outside the key gets `404 team_not_accessible`, as does a request without it once the key reads no team at all.",
+        "x-description-es": "El equipo que se lee, como identificador `team_…`. Omítelo si la clave lee un solo equipo; es obligatorio si lee varios (`400 team_required`). Si lo envías, debe indicar un equipo que la clave lee: un identificador mal formado recibe `400 invalid_request`, y un equipo fuera de la clave, `404 team_not_accessible`, igual que una petición sin la cabecera cuando la clave ya no lee ningún equipo.",
         "schema": {
           "type": "string",
           "pattern": "^team_[0-9A-Za-z]+$"
@@ -3862,8 +3869,8 @@
                 "type": "null"
               }
             ],
-            "description": "Whole seconds of the call (rounded down); null when not stored.",
-            "x-description-es": "Segundos enteros de la llamada (redondeados hacia abajo); null si no están guardados."
+            "description": "Whole seconds of the call (rounded down); null while the call is still live, or when not stored.",
+            "x-description-es": "Segundos enteros de la llamada (redondeados hacia abajo); null mientras la llamada sigue en curso, o si no están guardados."
           },
           "outcome": {
             "type": "string",
@@ -4550,8 +4557,8 @@
                       "erased",
                       "deleted"
                     ],
-                    "description": "`erased` after a privacy erasure, `deleted` otherwise. Either way, delete your copy and keep this version, so an older copy delivered later is ignored.",
-                    "x-description-es": "`erased` tras una supresión por privacidad, `deleted` en cualquier otro caso. En ambos, borra tu copia y conserva esta versión para ignorar una copia anterior que llegue después."
+                    "description": "`erased` after an erasure, which is also what deleting a lead, call or conversation in Totem does: erasing a lead erases its calls, conversations and merged duplicates too, while its bookings stay with `lead` set to `null`. `deleted` for any other removal. Either way, delete your copy and keep this version, so an older copy delivered later is ignored.",
+                    "x-description-es": "`erased` tras una supresión, que es también lo que hace borrar un lead, una llamada o una conversación en Totem: suprimir un lead suprime también sus llamadas, sus conversaciones y sus duplicados fusionados, mientras que sus citas se conservan con `lead` a `null`. `deleted` en cualquier otra eliminación. En ambos casos, borra tu copia y conserva esta versión para ignorar una copia anterior que llegue después."
                   }
                 },
                 "required": [
@@ -5106,8 +5113,8 @@
                         "type": "null"
                       }
                     ],
-                    "description": "The destination lead, or null when an assistant handoff created it.",
-                    "x-description-es": "El lead de destino, o null si lo creó el traspaso de un asistente."
+                    "description": "The destination lead, or null when its id cannot be named across teams: an assistant handoff created it, or the transfer landed on an existing lead-ads lead (Meta, Google Ads or LinkedIn) or another lead with a fixed id.",
+                    "x-description-es": "El lead de destino, o null si su id no puede nombrarse entre equipos: lo creó el traspaso de un asistente, o el traspaso cayó en un lead existente de anuncios (Meta, Google Ads o LinkedIn) u otro lead con id fijo."
                   }
                 },
                 "required": [
@@ -5461,12 +5468,28 @@
                     "x-description-es": "Cuándo se escribió el registro."
                   },
                   "source": {
-                    "description": "The lead source at capture, or null.",
-                    "x-description-es": "El origen del lead en la captura, o null.",
-                    "type": [
-                      "string",
-                      "null"
-                    ]
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "meta_lead_ads",
+                          "manual",
+                          "website_form",
+                          "booking_page",
+                          "csv_import",
+                          "api",
+                          "chatbot",
+                          "google_ads",
+                          "linkedin",
+                          "other"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "The lead source at capture, from the same set as the lead's `source`; `api` also covers leads created by Totem itself (for example from a conversation or a call, see `origin`). Null when none was stored.",
+                    "x-description-es": "El origen del lead en la captura, del mismo conjunto que el `source` del lead; `api` cubre también los leads que crea el propio Totem (por ejemplo, desde una conversación o una llamada, ver `origin`). Null si no había ninguno."
                   },
                   "source_hint": {
                     "description": "The real source of a gated ad lead stored as `api`, or null.",
@@ -5525,6 +5548,10 @@
                         "properties": {
                           "kind": {
                             "type": "string",
+                            "enum": [
+                              "conversation",
+                              "call"
+                            ],
                             "description": "`conversation` or `call`.",
                             "x-description-es": "`conversation` o `call`."
                           },
@@ -5546,8 +5573,8 @@
                         "type": "null"
                       }
                     ],
-                    "description": "The conversation or call that created the lead (never its id), or null.",
-                    "x-description-es": "La conversación o llamada que creó el lead (nunca su id), o null."
+                    "description": "The conversation or call that created the lead (never its id), or null (also for an origin of another kind).",
+                    "x-description-es": "La conversación o llamada que creó el lead (nunca su id), o null (también para un origen de otro tipo)."
                   },
                   "campaign": {
                     "type": "object",
@@ -6327,8 +6354,8 @@
                                 "type": "null"
                               }
                             ],
-                            "description": "Its lead there, or null when an assistant handed off a caller without one.",
-                            "x-description-es": "Su lead allí, o null si un asistente traspasó a alguien que no lo tenía."
+                            "description": "Its lead there, or null when that id cannot be named across teams: an assistant handed off a caller without one, or the lead there is a lead-ads lead (Meta, Google Ads or LinkedIn) or another lead with a fixed id. `automated` tells an assistant's handoff from a move made by a person.",
+                            "x-description-es": "Su lead allí, o null si ese id no puede nombrarse entre equipos: un asistente traspasó a alguien que no lo tenía, o el lead de allí es un lead de anuncios (Meta, Google Ads o LinkedIn) u otro lead con id fijo. `automated` distingue el traspaso de un asistente del que hace una persona."
                           },
                           "automated": {
                             "type": "boolean",
@@ -7070,8 +7097,8 @@
                 "type": "null"
               }
             ],
-            "description": "The newest ad submission recorded for this lead, including a repeat on an existing contact; null when none is recorded.",
-            "x-description-es": "El envío de anuncio más reciente registrado para este lead, incluida una repetición sobre un contacto existente; null si no hay ninguno."
+            "description": "The newest ad submission recorded for this lead, including a repeat on an existing contact; null when none is recorded. A submission the ad platform reports deleted (a LinkedIn member deleting their form response) is no longer shown.",
+            "x-description-es": "El envío de anuncio más reciente registrado para este lead, incluida una repetición sobre un contacto existente; null si no hay ninguno. Un envío que la plataforma de anuncios informa como borrado (un miembro de LinkedIn que borra su respuesta al formulario) deja de mostrarse."
           },
           "latest_submission_missing_reason": {
             "anyOf": [
@@ -7528,8 +7555,8 @@
                         "type": "null"
                       }
                     ],
-                    "description": "The destination lead, or null when an assistant handoff created it.",
-                    "x-description-es": "El lead de destino, o null si lo creó el traspaso de un asistente."
+                    "description": "The destination lead, or null when its id cannot be named across teams: an assistant handoff created it, or the transfer landed on an existing lead-ads lead (Meta, Google Ads or LinkedIn) or another lead with a fixed id.",
+                    "x-description-es": "El lead de destino, o null si su id no puede nombrarse entre equipos: lo creó el traspaso de un asistente, o el traspaso cayó en un lead existente de anuncios (Meta, Google Ads o LinkedIn) u otro lead con id fijo."
                   }
                 },
                 "required": [
@@ -8875,8 +8902,8 @@
       "status": 403,
       "title": "Sector restricted",
       "action": "keep_and_retry",
-      "description": "Totem does not export this team's data through the API because of the team's business sector.",
-      "x-description-es": "Totem no exporta los datos de este equipo por la API debido al sector de actividad del equipo.",
+      "description": "Reserved: the public Beta exports every business sector, so it does not return this code. Under a future sector policy, it would mean that Totem does not export this team's data through the API because of the team's business sector.",
+      "x-description-es": "Reservado: la Beta pública exporta todos los sectores de actividad, así que no devuelve este código. Con una futura política de sectores, indicaría que Totem no exporta los datos de este equipo por la API debido al sector de actividad del equipo.",
       "fix": "Keep any data you already have and skip the team: waiting does not change this. Talk to the customer or to Totem if you need its data.",
       "x-fix-es": "Conserva los datos que ya tengas y omite el equipo: esperar no lo cambia. Si necesitas sus datos, habla con el cliente o con Totem.",
       "doc_url": "https://totemstudio.ai/developers/errors#sector_restricted"
@@ -8895,8 +8922,8 @@
       "status": 404,
       "title": "Resource not found",
       "action": "fix_request",
-      "description": "The record does not exist, was removed, belongs to a team this key does not read, or was created so recently that Totem has not prepared it yet. An unknown path or method also gets this code.",
-      "x-description-es": "El registro no existe, se eliminó, pertenece a un equipo que esta clave no lee o se creó hace tan poco que Totem aún no lo ha preparado. Una ruta o un método desconocidos también reciben este código.",
+      "description": "The record does not exist, was removed, belongs to a team this key does not read, or was created so recently that Totem has not prepared it yet. A `GET` or `POST` under `/v1/` that matches no endpoint also gets this code. Any other method, and any path outside `/v1/`, gets a plain `404` from the firewall in front of the API, with no problem body and no `Totem-Request-Id`.",
+      "x-description-es": "El registro no existe, se eliminó, pertenece a un equipo que esta clave no lee o se creó hace tan poco que Totem aún no lo ha preparado. Un `GET` o un `POST` bajo `/v1/` que no corresponde a ningún endpoint también recibe este código. Cualquier otro método, y cualquier ruta fuera de `/v1/`, recibe un `404` simple del cortafuegos que protege la API, sin cuerpo de error ni `Totem-Request-Id`.",
       "fix": "Check the id and the path. If the record was created moments ago, do not retry in a loop: the changes feed delivers it as soon as it is ready.",
       "x-fix-es": "Comprueba el identificador y la ruta. Si el registro se acaba de crear, no reintentes en bucle: el feed de cambios lo entregará en cuanto esté listo.",
       "doc_url": "https://totemstudio.ai/developers/errors#resource_missing"
@@ -8905,8 +8932,8 @@
       "status": 404,
       "title": "Team not accessible",
       "action": "drop_team",
-      "description": "The `Totem-Team` header names a team this key does not read: one it never covered, one removed from the key or from the organization, or one that was deleted.",
-      "x-description-es": "La cabecera `Totem-Team` indica un equipo que esta clave no lee: uno que nunca incluyó, uno que se quitó de la clave o de la organización, o uno que se eliminó.",
+      "description": "The `Totem-Team` header names a team this key does not read: one it never covered, one removed from the key or from the organization, or one that was deleted. Without the header, it means the key no longer reads any team.",
+      "x-description-es": "La cabecera `Totem-Team` indica un equipo que esta clave no lee: uno que nunca incluyó, uno que se quitó de la clave o de la organización, o uno que se eliminó. Sin la cabecera, significa que la clave ya no lee ningún equipo.",
       "fix": "Re-read `GET /v1/teams` before you act. If the team is no longer listed, delete its copy and its cursor; if it is still listed, keep everything and try again on the next run.",
       "x-fix-es": "Vuelve a leer `GET /v1/teams` antes de actuar. Si el equipo ya no aparece, borra su copia y su cursor; si sigue apareciendo, conserva todo y vuelve a intentarlo en la siguiente ejecución.",
       "doc_url": "https://totemstudio.ai/developers/errors#team_not_accessible"

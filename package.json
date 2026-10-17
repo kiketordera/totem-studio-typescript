@@ -1,6 +1,6 @@
 {
   "name": "@totemstudio/sdk",
-  "version": "0.1.0-beta.1",
+  "version": "0.1.0-beta.2",
   "description": "Official server-side TypeScript SDK for the Totem Studio public API (Beta)",
   "type": "module",
   "license": "MIT",
@@ -10,13 +10,14 @@
   },
   "homepage": "https://totemstudio.ai/developers",
   "engines": {
-    "node": ">=24.18.0"
+    "node": ">=22.12.0"
   },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -24,6 +25,8 @@
     "dist",
     "src",
     "README.md",
+    "CHANGELOG.md",
+    "SECURITY.md",
     "LICENSE"
   ],
   "sideEffects": false,
@@ -35,11 +38,15 @@
     "generate": "node scripts/generate.mjs",
     "generate:check": "node scripts/generate.mjs --check",
     "typecheck": "tsc --noEmit && tsc -p tsconfig.examples.json",
-    "build": "tsc",
-    "test": "node --test --test-concurrency=1 tests/*.test.mjs",
+    "build": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\" && tsc",
+    "pretest": "npm run build",
+    "test": "node --test --test-concurrency=1 --test-timeout=30000 tests/*.test.mjs",
+    "test:file": "npm run build && node --test --test-concurrency=1 --test-timeout=30000",
     "test:consumer": "node scripts/test-consumer.mjs",
+    "test:git-install": "node scripts/test-git-install.mjs",
+    "pretest:live": "npm run build",
     "test:live": "node scripts/live-smoke.mjs",
-    "health": "npm run generate:check && npm run typecheck && npm run build && npm test && npm run test:consumer",
+    "health": "npm run generate:check && npm run typecheck && npm test && npm run test:consumer",
     "prepublishOnly": "npm run health",
     "prepare": "npm run build"
   },

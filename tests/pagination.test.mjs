@@ -1,8 +1,8 @@
-/** Contract: pagination preserves tenant/filter state, treats cursors as opaque data, and halts at caught-up or invalid progress. */
+/** Contract: pagination preserves tenant/filter state, treats cursors as opaque data, and halts at caught-up or invalid progress; isFeedRemoval tells a feed removal from an upsert. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { TotemClient, TotemApiError, TotemProtocolError } from '../dist/index.js';
-import { KEY, serve } from './helpers.mjs';
+import { TotemClient, TotemApiError, TotemProtocolError, isFeedRemoval } from '../dist/index.js';
+import { KEY, problem, serve } from './helpers.mjs';
 
 test('items traverse pages with filters and team preserved', async context => {
   const requests = [];
@@ -17,6 +17,18 @@ test('items traverse pages with filters and team preserved', async context => {
   assert.equal(requests[0].url, '/v1/leads?limit=1&status=new');
   assert.equal(requests[1].url, '/v1/leads?limit=1&status=new&cursor=opaque%2B%2F%3Dtwo');
   assert.equal(requests[1].headers['totem-team'], 'team_A');
+});
+test('a per-request team is kept on every page, over the client default', async context => {
+  const requests = [];
+  const baseUrl = await serve(context, request => {
+    requests.push(request);
+    if (request.headers['totem-team'] !== 'team_B') return { status: 404, body: problem(404, 'team_not_accessible') };
+    return { body: requests.length === 1 ? { object: 'list', data: [{ id: 'lead_one' }], has_more: true, next_cursor: 'two' } : { object: 'list', data: [{ id: 'lead_two' }], has_more: false, next_cursor: null } };
+  });
+  const pages = [];
+  for await (const page of new TotemClient({ apiKey: KEY, baseUrl, team: 'team_A' }).pages('leads.list', { team: 'team_B' })) pages.push(page.data[0].id);
+  assert.deepEqual(pages, ['lead_one', 'lead_two']);
+  assert.deepEqual(requests.map(request => request.headers['totem-team']), ['team_B', 'team_B']);
 });
 test('URL-like cursor never changes the destination host or API path', async context => {
   let foreignRequests = 0;
@@ -50,9 +62,28 @@ for (const [label, next] of [['missing', null], ['empty', ''], ['repeated', 'alr
     await assert.rejects(async () => { for await (const _page of new TotemClient({ apiKey: KEY, baseUrl }).pages('calls.list', { query: { cursor: 'already_seen' } })) { /* consume */ } }, error => error instanceof TotemProtocolError && error.requestId === 'req_fixture_01');
   });
 }
+test('refuses a cursor cycle that never repeats the starting cursor', { timeout: 5000 }, async context => {
+  const cycle = ['c1', 'c2', 'c1', 'c2'];
+  let count = 0;
+  const baseUrl = await serve(context, () => ({ body: { object: 'list', data: [], has_more: true, next_cursor: cycle[count++] } }));
+  await assert.rejects(async () => { for await (const _page of new TotemClient({ apiKey: KEY, baseUrl }).pages('calls.list')) { /* consume */ } }, error => error instanceof TotemProtocolError && /repeated cursor/.test(error.message));
+  assert.equal(count, 3);
+});
+test('a successful body that is not a list page is a protocol error', async context => {
+  const baseUrl = await serve(context, () => ({ body: { ok: true } }));
+  await assert.rejects(async () => { for await (const _page of new TotemClient({ apiKey: KEY, baseUrl }).pages('calls.list')) { /* consume */ } }, error => error instanceof TotemProtocolError && error.message === 'Expected a Totem list page');
+});
 test('breaking iteration does not prefetch the next page', async context => {
   let count = 0;
   const baseUrl = await serve(context, () => { count++; return { body: { object: 'list', data: [{ id: 'call_one' }], has_more: true, next_cursor: 'next' } }; });
   for await (const item of new TotemClient({ apiKey: KEY, baseUrl }).items('calls.list')) { assert.equal(item.id, 'call_one'); break; }
   assert.equal(count, 1);
 });
+for (const [label, item, removal] of [
+  ['a removal', { kind: 'lead', id: 'lead_1', version: 2, removed: { reason: 'deleted' } }, true],
+  ['an erasure', { kind: 'call', id: 'call_1', version: 5, removed: { reason: 'erased' } }, true],
+  ['an upsert', { kind: 'lead', id: 'lead_1', version: 3, object: { id: 'lead_1' } }, false],
+  ['an upsert with a null removed field', { kind: 'lead', id: 'lead_1', version: 3, object: { id: 'lead_1' }, removed: null }, false],
+]) {
+  test(`isFeedRemoval: ${label}`, () => assert.equal(isFeedRemoval(item), removal));
+}

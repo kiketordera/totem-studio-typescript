@@ -1,4 +1,5 @@
 export { TotemClient } from './client.js'
-export { TotemApiError, TotemProtocolError, TotemTimeoutError } from './errors.js'
-export { CONTRACT_SHA256 } from './generated/operations.js'
+export { TotemApiError, TotemConnectionError, TotemError, TotemProtocolError, TotemTimeoutError } from './errors.js'
+export { isFeedRemoval } from './feed.js'
+export { CONTRACT_SHA256, SDK_VERSION, errorCatalogue } from './generated/operations.js'
 export type * from './types.js'
