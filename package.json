@@ -1,0 +1,56 @@
+{
+  "name": "@totemstudio/sdk",
+  "version": "0.1.0-beta.1",
+  "description": "Official server-side TypeScript SDK for the Totem Studio public API (Beta)",
+  "type": "module",
+  "license": "MIT",
+  "author": {
+    "name": "Totem Studio",
+    "email": "hello@totemstudio.ai"
+  },
+  "homepage": "https://totemstudio.ai/developers",
+  "engines": {
+    "node": ">=24.18.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public",
+    "tag": "beta"
+  },
+  "scripts": {
+    "generate": "node scripts/generate.mjs",
+    "generate:check": "node scripts/generate.mjs --check",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.examples.json",
+    "build": "tsc",
+    "test": "node --test --test-concurrency=1 tests/*.test.mjs",
+    "test:consumer": "node scripts/test-consumer.mjs",
+    "test:live": "node scripts/live-smoke.mjs",
+    "health": "npm run generate:check && npm run typecheck && npm run build && npm test && npm run test:consumer",
+    "prepublishOnly": "npm run health",
+    "prepare": "npm run build"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kiketordera/totem-studio-typescript.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kiketordera/totem-studio-typescript/issues"
+  }
+}

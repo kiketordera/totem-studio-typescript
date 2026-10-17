@@ -1,0 +1,7 @@
+node_modules/
+dist/
+*.tgz
+.env*
+coverage/
+*.key
+*-receipt.json
