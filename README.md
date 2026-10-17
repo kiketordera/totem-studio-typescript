@@ -111,7 +111,7 @@ your next poll (typically every 1–5 minutes). The SDK does not poll in the bac
 Use `pages` for durable synchronization so you can commit the checkpoint with
 its changes. Apply removals, re-read team access on each sync, and follow the
 [full synchronization guide](https://totemstudio.ai/developers/sync).
-A `cursor_expired` response requires the documented full resync and mark-and-sweep.
+A `sync_cursor_expired` response requires the documented full resync and mark-and-sweep.
 
 Cursors are opaque strings. They are encoded as query data, never followed as
 URLs. HTTP redirects are refused, so credentials never follow redirect targets.

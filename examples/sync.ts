@@ -7,7 +7,7 @@ interface SyncStore {
   applyPage(team: string, changes: FeedItem[], nextCursor: string): Promise<void>
 }
 
-/** Call every 1–5 minutes. On cursor_expired perform the documented full mark-and-sweep resync. */
+/** Call every 1–5 minutes. On sync_cursor_expired perform the documented full mark-and-sweep resync. */
 export async function syncTeam(apiKey: string, team: string, store: SyncStore, signal?: AbortSignal) {
   const client = new TotemClient({ apiKey, team })
   const cursor = await store.loadCursor(team)
