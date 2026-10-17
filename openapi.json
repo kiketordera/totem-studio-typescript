@@ -8765,7 +8765,7 @@
       168
     ],
     "SEARCH_MAX_RESULTS": 10,
-    "SENSITIVE_SECTOR_POLICY": "exclude",
+    "SENSITIVE_SECTOR_POLICY": "allow",
     "SENSITIVE_SECTOR_POLICY_OPTIONS": [
       "exclude",
       "allow"

@@ -1,5 +1,5 @@
 /** Generated from openapi.json. Do not edit. */
-export const CONTRACT_SHA256 = 'db84838d9084787f3e69124e6c1ec6b20b60f3666f2bc8e4b460526daff3ac93'
+export const CONTRACT_SHA256 = '6661d51725b759bc5efb31cd6318dad1d295b598f4d819bfec748c2614ec1bd8'
 export const DEFAULT_BASE_URL = 'https://api.totemstudio.ai/v1'
 export const operationDefinitions = {
   "me.get": {
