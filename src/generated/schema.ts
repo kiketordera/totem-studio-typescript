@@ -1303,7 +1303,7 @@ export interface OperationContracts {
 }; path: {
 
 }; body: ExclusiveUnion<({
-/** A phone number in E.164 (`+12025550123`). It finds records stored in E.164, with or without the `+`; a record stored with spaces or a national prefix is not found. */
+/** A phone number in E.164 (`+12025550123`). It finds the number stored in E.164, with or without the `+`, and in the layouts phone libraries write: `+1 202-555-0123`, `(202) 555-0123` and `2025550123`. Other layouts, such as `202 555 0123`, are not found. */
 "phone": string
 } | {
 /** An email address. It finds records stored exactly as sent, or stored in lowercase. */
@@ -1326,13 +1326,15 @@ export interface OperationContracts {
 /**
  * List calls
  *
- * Returns a page of the team's calls, each with its direction, start time, duration and a normalized outcome, and linked to its lead when there is one. Recordings and transcripts are not exported.
+ * Returns a page of the team's calls, each with its direction, start time, duration and a normalized outcome, and linked to its lead when there is one. Pass `lead` for one lead's calls. Recordings and transcripts are not exported.
  */
 "calls.list": { response: Schemas["CallList"]; query: {
 /** Items per page, 1–100. Defaults to 25. */
 "limit"?: number | null | undefined;
 /** The `next_cursor` of the previous page. Omit it for the first page. */
-"cursor"?: string | null | undefined
+"cursor"?: string | null | undefined;
+/** Only the calls linked to this lead: every item's `lead` is this id. A lead of another team, or one that does not exist, matches nothing. */
+"lead"?: string | null | undefined
 }; path: {
 
 }; body: never };
@@ -1350,13 +1352,15 @@ export interface OperationContracts {
 /**
  * List conversations
  *
- * Returns a page of the team's conversations, one per channel, business account and contact address: channel, inbox status, assignee and the times of the latest inbound and outbound messages. Message content is never exported.
+ * Returns a page of the team's conversations, one per channel, business account and contact address: channel, inbox status, assignee and the times of the latest inbound and outbound messages. Pass `lead` for one lead's conversations. Message content is never exported.
  */
 "conversations.list": { response: Schemas["ConversationList"]; query: {
 /** Items per page, 1–100. Defaults to 25. */
 "limit"?: number | null | undefined;
 /** The `next_cursor` of the previous page. Omit it for the first page. */
-"cursor"?: string | null | undefined
+"cursor"?: string | null | undefined;
+/** Only the conversations linked to this lead: every item's `lead` is this id. A lead of another team, or one that does not exist, matches nothing. */
+"lead"?: string | null | undefined
 }; path: {
 
 }; body: never };
@@ -1374,13 +1378,15 @@ export interface OperationContracts {
 /**
  * List bookings
  *
- * Returns a page of the team's bookings: appointments for a bookable service, events from the connected calendar and bookings imported from other systems, each with its status and times.
+ * Returns a page of the team's bookings: appointments for a bookable service, events from the connected calendar and bookings imported from other systems, each with its status and times. Pass `lead` for one lead's bookings.
  */
 "bookings.list": { response: Schemas["BookingList"]; query: {
 /** Items per page, 1–100. Defaults to 25. */
 "limit"?: number | null | undefined;
 /** The `next_cursor` of the previous page. Omit it for the first page. */
-"cursor"?: string | null | undefined
+"cursor"?: string | null | undefined;
+/** Only the bookings linked to this lead: every item's `lead` is this id. A lead of another team, or one that does not exist, matches nothing. */
+"lead"?: string | null | undefined
 }; path: {
 
 }; body: never };

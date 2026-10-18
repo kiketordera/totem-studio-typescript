@@ -1,7 +1,7 @@
 /** Generated from openapi.json and package.json. Do not edit; run npm run generate. */
 import type { ErrorAction, TotemErrorCode } from './schema.js'
 
-export const CONTRACT_SHA256 = 'f9eaf5a99fd7b78320d11ff97600092a0c0529124af56ff6bba70554cf4ea8e2'
+export const CONTRACT_SHA256 = 'c29a97ac25b42133dce168471220f8579aa4016ef4942d0b204809cd9ac0b9c4'
 export const SDK_VERSION = '0.1.0-beta.2'
 export const DEFAULT_BASE_URL = "https://api.totemstudio.ai/v1"
 export const operationDefinitions = {
@@ -105,7 +105,8 @@ export const operationDefinitions = {
     "team": true,
     "query": [
       "limit",
-      "cursor"
+      "cursor",
+      "lead"
     ]
   },
   "calls.get": {
@@ -124,7 +125,8 @@ export const operationDefinitions = {
     "team": true,
     "query": [
       "limit",
-      "cursor"
+      "cursor",
+      "lead"
     ]
   },
   "conversations.get": {
@@ -143,7 +145,8 @@ export const operationDefinitions = {
     "team": true,
     "query": [
       "limit",
-      "cursor"
+      "cursor",
+      "lead"
     ]
   },
   "bookings.get": {

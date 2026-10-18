@@ -1110,8 +1110,8 @@
                         "type": "string",
                         "minLength": 3,
                         "maxLength": 40,
-                        "description": "A phone number in E.164 (`+12025550123`). It finds records stored in E.164, with or without the `+`; a record stored with spaces or a national prefix is not found.",
-                        "x-description-es": "Un teléfono en formato E.164 (`+12025550123`). Encuentra los registros guardados en E.164, con o sin `+`; un registro guardado con espacios o con prefijo nacional no aparece."
+                        "description": "A phone number in E.164 (`+12025550123`). It finds the number stored in E.164, with or without the `+`, and in the layouts phone libraries write: `+1 202-555-0123`, `(202) 555-0123` and `2025550123`. Other layouts, such as `202 555 0123`, are not found.",
+                        "x-description-es": "Un teléfono en formato E.164 (`+12025550123`). Encuentra el número guardado en E.164, con o sin `+`, y en los formatos que escriben las bibliotecas de teléfonos: `+1 202-555-0123`, `(202) 555-0123` y `2025550123`. Otros formatos, como `202 555 0123`, no aparecen."
                       }
                     },
                     "required": [
@@ -1416,8 +1416,8 @@
         ],
         "summary": "List calls",
         "x-summary-es": "Lista las llamadas",
-        "description": "Returns a page of the team's calls, each with its direction, start time, duration and a normalized outcome, and linked to its lead when there is one. Recordings and transcripts are not exported.",
-        "x-description-es": "Devuelve una página de llamadas del equipo, cada una con su dirección, su hora de inicio, su duración y un resultado normalizado, y vinculada a su lead cuando lo hay. Las grabaciones y las transcripciones no se exportan.",
+        "description": "Returns a page of the team's calls, each with its direction, start time, duration and a normalized outcome, and linked to its lead when there is one. Pass `lead` for one lead's calls. Recordings and transcripts are not exported.",
+        "x-description-es": "Devuelve una página de llamadas del equipo, cada una con su dirección, su hora de inicio, su duración y un resultado normalizado, y vinculada a su lead cuando lo hay. Envía `lead` para obtener las llamadas de un lead. Las grabaciones y las transcripciones no se exportan.",
         "parameters": [
           {
             "name": "limit",
@@ -1442,6 +1442,17 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 512
+            }
+          },
+          {
+            "name": "lead",
+            "in": "query",
+            "required": false,
+            "description": "Only the calls linked to this lead: every item's `lead` is this id. A lead of another team, or one that does not exist, matches nothing.",
+            "x-description-es": "Solo las llamadas vinculadas a este lead: el `lead` de cada elemento es este identificador. Un lead de otro equipo, o que no existe, no coincide con nada.",
+            "schema": {
+              "type": "string",
+              "pattern": "^lead_[0-9A-Za-z]+$"
             }
           },
           {
@@ -1610,8 +1621,8 @@
         ],
         "summary": "List conversations",
         "x-summary-es": "Lista las conversaciones",
-        "description": "Returns a page of the team's conversations, one per channel, business account and contact address: channel, inbox status, assignee and the times of the latest inbound and outbound messages. Message content is never exported.",
-        "x-description-es": "Devuelve una página de conversaciones del equipo, una por canal, cuenta de empresa y dirección de contacto: canal, estado en la bandeja de entrada, responsable y la hora de los últimos mensajes recibidos y enviados. El contenido de los mensajes nunca se exporta.",
+        "description": "Returns a page of the team's conversations, one per channel, business account and contact address: channel, inbox status, assignee and the times of the latest inbound and outbound messages. Pass `lead` for one lead's conversations. Message content is never exported.",
+        "x-description-es": "Devuelve una página de conversaciones del equipo, una por canal, cuenta de empresa y dirección de contacto: canal, estado en la bandeja de entrada, responsable y la hora de los últimos mensajes recibidos y enviados. Envía `lead` para obtener las conversaciones de un lead. El contenido de los mensajes nunca se exporta.",
         "parameters": [
           {
             "name": "limit",
@@ -1636,6 +1647,17 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 512
+            }
+          },
+          {
+            "name": "lead",
+            "in": "query",
+            "required": false,
+            "description": "Only the conversations linked to this lead: every item's `lead` is this id. A lead of another team, or one that does not exist, matches nothing.",
+            "x-description-es": "Solo las conversaciones vinculadas a este lead: el `lead` de cada elemento es este identificador. Un lead de otro equipo, o que no existe, no coincide con nada.",
+            "schema": {
+              "type": "string",
+              "pattern": "^lead_[0-9A-Za-z]+$"
             }
           },
           {
@@ -1808,8 +1830,8 @@
         ],
         "summary": "List bookings",
         "x-summary-es": "Lista las citas",
-        "description": "Returns a page of the team's bookings: appointments for a bookable service, events from the connected calendar and bookings imported from other systems, each with its status and times.",
-        "x-description-es": "Devuelve una página de citas del equipo: citas para un servicio reservable, eventos del calendario conectado y citas importadas de otros sistemas, cada una con su estado y su horario.",
+        "description": "Returns a page of the team's bookings: appointments for a bookable service, events from the connected calendar and bookings imported from other systems, each with its status and times. Pass `lead` for one lead's bookings.",
+        "x-description-es": "Devuelve una página de citas del equipo: citas para un servicio reservable, eventos del calendario conectado y citas importadas de otros sistemas, cada una con su estado y su horario. Envía `lead` para obtener las citas de un lead.",
         "parameters": [
           {
             "name": "limit",
@@ -1834,6 +1856,17 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 512
+            }
+          },
+          {
+            "name": "lead",
+            "in": "query",
+            "required": false,
+            "description": "Only the bookings linked to this lead: every item's `lead` is this id. A lead of another team, or one that does not exist, matches nothing.",
+            "x-description-es": "Solo las citas vinculadas a este lead: el `lead` de cada elemento es este identificador. Un lead de otro equipo, o que no existe, no coincide con nada.",
+            "schema": {
+              "type": "string",
+              "pattern": "^lead_[0-9A-Za-z]+$"
             }
           },
           {
@@ -8831,6 +8864,7 @@
     "invalid_request": {
       "status": 400,
       "title": "Invalid request",
+      "x-title-es": "Petición no válida",
       "action": "fix_request",
       "description": "Something in the request is not valid: an unknown, repeated or out-of-range query parameter, a query string or body on an endpoint that takes none, a cursor issued for another endpoint, filter or team, a malformed `Totem-Team` header, or a body that is not the JSON this endpoint expects. `param` names the parameter, header or field at fault. A conversations cursor is also refused once the conversation it points at has been erased.",
       "x-description-es": "Algo de la petición no es válido: un parámetro de consulta desconocido, repetido o fuera de rango, una cadena de consulta o un cuerpo en un endpoint que no los admite, un cursor emitido para otro endpoint, otros filtros u otro equipo, una cabecera `Totem-Team` mal formada o un cuerpo que no es el JSON que espera el endpoint. `param` indica el parámetro, la cabecera o el campo que ha fallado. Un cursor de conversaciones también se rechaza cuando se suprime la conversación a la que apunta.",
@@ -8841,6 +8875,7 @@
     "team_required": {
       "status": 400,
       "title": "Team required",
+      "x-title-es": "Falta el equipo",
       "action": "fix_request",
       "description": "The key reads more than one team and this endpoint reads one team's data, but the request does not say which team.",
       "x-description-es": "La clave lee más de un equipo y este endpoint lee los datos de uno, pero la petición no indica cuál.",
@@ -8851,6 +8886,7 @@
     "secret_key_in_browser": {
       "status": 400,
       "title": "Secret key sent from a browser",
+      "x-title-es": "Clave secreta enviada desde un navegador",
       "action": "fix_request",
       "description": "The request carried a secret key together with an `Origin` header, which means it came from a browser. Totem refuses it before reading anything.",
       "x-description-es": "La petición llevaba una clave secreta junto con una cabecera `Origin`, lo que indica que salió de un navegador. Totem la rechaza sin leer nada.",
@@ -8861,6 +8897,7 @@
     "invalid_credentials": {
       "status": 401,
       "title": "Invalid credentials",
+      "x-title-es": "Credenciales no válidas",
       "action": "check_credentials",
       "description": "The `Authorization` header is missing or malformed, or the key is unknown, wrong or revoked, or its integration is no longer active.",
       "x-description-es": "Falta la cabecera `Authorization` o está mal formada, o la clave no existe, es incorrecta o está revocada, o su integración ya no está activa.",
@@ -8871,6 +8908,7 @@
     "key_expired": {
       "status": 401,
       "title": "Key expired",
+      "x-title-es": "Clave caducada",
       "action": "check_credentials",
       "description": "The key was rolled and its grace period is over.",
       "x-description-es": "La clave se rotó y su periodo de gracia ha terminado.",
@@ -8881,6 +8919,7 @@
     "insufficient_scope": {
       "status": 403,
       "title": "Insufficient scope",
+      "x-title-es": "Permisos insuficientes",
       "action": "contact_support",
       "description": "The key lacks a permission this endpoint needs. Every v1.0a key holds the full read set, so this should not happen.",
       "x-description-es": "A la clave le falta un permiso que necesita este endpoint. Todas las claves de la versión 1.0a tienen el conjunto completo de lectura, así que no debería ocurrir.",
@@ -8891,6 +8930,7 @@
     "plan_not_entitled": {
       "status": 403,
       "title": "Plan not entitled",
+      "x-title-es": "El plan no incluye la API",
       "action": "keep_and_retry",
       "description": "The organization's plan does not include the Totem API at the moment.",
       "x-description-es": "El plan de la organización no incluye ahora mismo la API de Totem.",
@@ -8901,6 +8941,7 @@
     "ip_not_allowed": {
       "status": 403,
       "title": "IP address not allowed",
+      "x-title-es": "Dirección IP no permitida",
       "action": "check_credentials",
       "description": "The key is valid, but the request came from an IP address outside the integration's allowlist.",
       "x-description-es": "La clave es válida, pero la petición salió de una dirección IP que no está en la lista de IP permitidas de la integración.",
@@ -8911,6 +8952,7 @@
     "team_state_restricted": {
       "status": 403,
       "title": "Team restricted",
+      "x-title-es": "Equipo restringido",
       "action": "keep_and_retry",
       "description": "The team is restricted for now: it is disabled (for example, suspended for non-payment), archived or billing-only, or its API access is paused. `GET /v1/teams` still lists it.",
       "x-description-es": "El equipo está restringido por ahora: está desactivado (por ejemplo, suspendido por impago), archivado o es solo de facturación, o tiene pausado el acceso a la API. `GET /v1/teams` lo sigue mostrando.",
@@ -8921,6 +8963,7 @@
     "sector_restricted": {
       "status": 403,
       "title": "Sector restricted",
+      "x-title-es": "Sector restringido",
       "action": "keep_and_retry",
       "description": "Totem does not export this team's data through the API because the team works in a sensitive sector, such as health care, where its records can reveal health information.",
       "x-description-es": "Totem no exporta los datos de este equipo por la API porque el equipo trabaja en un sector sensible, como el sanitario, en el que sus registros pueden revelar información de salud.",
@@ -8931,6 +8974,7 @@
     "capability_disabled": {
       "status": 403,
       "title": "Capability disabled",
+      "x-title-es": "Función desactivada",
       "action": "keep_and_retry",
       "description": "Totem has temporarily switched this endpoint off for every key.",
       "x-description-es": "Totem ha desactivado temporalmente este endpoint para todas las claves.",
@@ -8941,6 +8985,7 @@
     "resource_missing": {
       "status": 404,
       "title": "Resource not found",
+      "x-title-es": "Recurso no encontrado",
       "action": "fix_request",
       "description": "The record does not exist, was removed, belongs to a team this key does not read, or was created so recently that Totem has not prepared it yet. A `GET` or `POST` under `/v1/` that matches no endpoint also gets this code. Any other method, and any path outside `/v1/`, gets a plain `404` from the firewall in front of the API, with no problem body and no `Totem-Request-Id`.",
       "x-description-es": "El registro no existe, se eliminó, pertenece a un equipo que esta clave no lee o se creó hace tan poco que Totem aún no lo ha preparado. Un `GET` o un `POST` bajo `/v1/` que no corresponde a ningún endpoint también recibe este código. Cualquier otro método, y cualquier ruta fuera de `/v1/`, recibe un `404` simple del cortafuegos que protege la API, sin cuerpo de error ni `Totem-Request-Id`.",
@@ -8951,6 +8996,7 @@
     "team_not_accessible": {
       "status": 404,
       "title": "Team not accessible",
+      "x-title-es": "Equipo no accesible",
       "action": "drop_team",
       "description": "The `Totem-Team` header names a team this key does not read: one it never covered, one removed from the key or from the organization, or one that was deleted. Without the header, it means the key no longer reads any team.",
       "x-description-es": "La cabecera `Totem-Team` indica un equipo que esta clave no lee: uno que nunca incluyó, uno que se quitó de la clave o de la organización, o uno que se eliminó. Sin la cabecera, significa que la clave ya no lee ningún equipo.",
@@ -8961,6 +9007,7 @@
     "resync_required": {
       "status": 409,
       "title": "Resync required",
+      "x-title-es": "Hay que volver a sincronizar",
       "action": "resync",
       "description": "Totem cannot continue the feed from this cursor: the data was restored from a backup, or a gap was found in the team's changes.",
       "x-description-es": "Totem no puede continuar el feed desde este cursor: los datos se restauraron desde una copia de seguridad o se detectó un hueco en los cambios del equipo.",
@@ -8971,6 +9018,7 @@
     "capture_not_ready": {
       "status": 409,
       "title": "Team data is still being prepared",
+      "x-title-es": "Los datos del equipo aún se están preparando",
       "action": "wait_capture",
       "description": "Totem is still preparing this team's data for the API. This happens once per team, after it is first added to any key; adding it to another key later does not repeat it.",
       "x-description-es": "Totem aún está preparando los datos de este equipo para la API. Ocurre una sola vez por equipo, después de que se añada por primera vez a una clave; añadirlo después a otra clave no lo repite.",
@@ -8981,6 +9029,7 @@
     "sync_cursor_expired": {
       "status": 410,
       "title": "Sync cursor expired",
+      "x-title-es": "Cursor de sincronización caducado",
       "action": "resync",
       "description": "The cursor is more than 30 days old, counted from the point in the feed it reached (or, while an initial sync is still running, from when that sync started).",
       "x-description-es": "El cursor tiene más de 30 días, contados desde el punto del feed al que llegó (o, mientras una carga inicial sigue en curso, desde que empezó).",
@@ -8991,6 +9040,7 @@
     "rate_limited": {
       "status": 429,
       "title": "Rate limited",
+      "x-title-es": "Límite de frecuencia superado",
       "action": "retry_after",
       "description": "The key went over its rate limit (items per minute), or too many failed authentication attempts from this IP address or against this key have locked it out for a while.",
       "x-description-es": "La clave ha superado su límite de frecuencia (elementos por minuto), o demasiados intentos de autenticación fallidos desde esta dirección IP o con esta clave la han bloqueado durante un tiempo.",
@@ -9001,6 +9051,7 @@
     "quota_exceeded": {
       "status": 429,
       "title": "Daily quota exceeded",
+      "x-title-es": "Cuota diaria superada",
       "action": "retry_after",
       "description": "The key has spent its daily quota of items. Every item returned by the changes feed and by every list counts toward it, including `GET /v1/teams`, `GET /v1/members`, `GET /v1/booking_services` and a lead's activities. The quota resets at 00:00 UTC.",
       "x-description-es": "La clave ha consumido su cuota diaria de elementos. Para la cuota cuenta cada elemento que devuelven el feed de cambios y todas las listas, incluidas `GET /v1/teams`, `GET /v1/members`, `GET /v1/booking_services` y las actividades de un lead. La cuota se renueva a las 00:00 UTC.",
@@ -9011,6 +9062,7 @@
     "internal_error": {
       "status": 500,
       "title": "Internal error",
+      "x-title-es": "Error interno",
       "action": "backoff",
       "description": "Something went wrong inside Totem while answering this request.",
       "x-description-es": "Algo ha fallado dentro de Totem al responder a esta petición.",
@@ -9021,6 +9073,7 @@
     "api_disabled": {
       "status": 503,
       "title": "API disabled",
+      "x-title-es": "API desactivada",
       "action": "backoff",
       "description": "Totem has temporarily switched the API off for every key.",
       "x-description-es": "Totem ha desactivado temporalmente la API para todas las claves.",
@@ -9031,6 +9084,7 @@
     "service_unavailable": {
       "status": 503,
       "title": "Service unavailable",
+      "x-title-es": "Servicio no disponible",
       "action": "backoff",
       "description": "Reserved: the API itself does not return this code today. A `503` from the load balancer or the hosting platform in front of the API arrives without a problem body; treat it like this code.",
       "x-description-es": "Reservado: la API no devuelve hoy este código. Un `503` del balanceador de carga o de la plataforma que aloja la API llega sin cuerpo de error; trátalo como este código.",

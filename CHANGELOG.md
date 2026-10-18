@@ -12,8 +12,13 @@ apart by `CONTRACT_SHA256`. The next release bumps the version.
 ### Contract
 
 - Generated from the API contract with SHA-256
-  `f9eaf5a99fd7b78320d11ff97600092a0c0529124af56ff6bba70554cf4ea8e2` (`CONTRACT_SHA256`).
-  Only documentation comments changed: no type, method or runtime behaviour.
+  `c29a97ac25b42133dce168471220f8579aa4016ef4942d0b204809cd9ac0b9c4` (`CONTRACT_SHA256`).
+- `calls.list`, `conversations.list` and `bookings.list` accept an optional
+  `lead` (`lead_…`) in their query: one lead's calls, conversations or
+  bookings. The other changes are documentation comments: no other type, method
+  or runtime behaviour.
+- `leads.search` by `phone` also matches the number stored in the layouts phone
+  libraries write (`+1 202-555-0123`, `(202) 555-0123`, `2025550123`).
 - Error catalogue: `sector_restricted` is no longer reserved. Totem returns it
   for a team in a sensitive sector, such as health care, whose data it does not
   export. `invalid_request` also covers a conversations cursor whose
