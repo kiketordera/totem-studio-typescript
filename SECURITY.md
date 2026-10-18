@@ -15,8 +15,9 @@ must be trusted.
 
 Install only the release tarball from this repository's GitHub releases, and
 check it against the SHA-256 published with the release, or the Git tag. The
-SDK is not published to the npm registry: a registry package named
-`@totemstudio/sdk` is not from Totem and must not be given a key.
+npm registry package `@totemstudioai/sdk` is not published yet. Once it is,
+only the one owned by the `totemstudioai` npm organization is Totem's; never
+give a key to a package with another name or owner.
 
 Error messages name only the HTTP status, error code and parameter name. An
 error's `problem`, `cause` and `retryAfterMs` come from the response or the

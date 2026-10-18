@@ -127,7 +127,7 @@ export class Transport {
       url.searchParams.set(name, String(value))
     }
     if (input.signal !== undefined && !(input.signal instanceof AbortSignal)) throw new TypeError('signal must be an AbortSignal')
-    const headers = new Headers({ Accept: 'application/json', 'User-Agent': `@totemstudio/sdk/${SDK_VERSION}` })
+    const headers = new Headers({ Accept: 'application/json', 'User-Agent': `@totemstudioai/sdk/${SDK_VERSION}` })
     if (definition.authenticated) headers.set('Authorization', `Bearer ${this.#apiKey}`)
     const team = teamId(input.team ?? undefined) ?? this.#team
     if (definition.team && team !== undefined) headers.set('Totem-Team', team)

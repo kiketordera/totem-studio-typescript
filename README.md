@@ -14,27 +14,27 @@ Install the release tarball. It contains the built package, so it needs no
 Git, no build step and no install scripts, and it works with `ignore-scripts`:
 
 ```sh
-npm install https://github.com/kiketordera/totem-studio-typescript/releases/download/v0.1.0-beta.2/totemstudio-sdk-0.1.0-beta.2.tgz
+npm install https://github.com/kiketordera/totem-studio-typescript/releases/download/v0.1.0-beta.2/totemstudioai-sdk-0.1.0-beta.2.tgz
 ```
 
 Each [GitHub release](https://github.com/kiketordera/totem-studio-typescript/releases)
 lists the tarball's SHA-256 and attaches it as a `.sha256` file. Check the file
-you downloaded against it (`shasum -a 256 totemstudio-sdk-0.1.0-beta.2.tgz`).
-Import the package by its name, `@totemstudio/sdk`.
+you downloaded against it (`shasum -a 256 totemstudioai-sdk-0.1.0-beta.2.tgz`).
+Import the package by its name, `@totemstudioai/sdk`.
 
 Alternatively, install the Git tag. This builds the package with TypeScript
 through its `prepare` script, so it **needs lifecycle scripts**: with
 `ignore-scripts=true`, pnpm's build-script allowlist or npm's `allowScripts`,
-allow `@totemstudio/sdk`, or the install succeeds without a `dist/` and the
+allow `@totemstudioai/sdk`, or the install succeeds without a `dist/` and the
 import fails.
 
 ```sh
 npm install github:kiketordera/totem-studio-typescript#v0.1.0-beta.2
 ```
 
-The SDK is **not published to the npm registry**. Do not install a package
-named `@totemstudio/sdk` from the registry: it is not from Totem, and it would
-receive your secret key.
+The SDK is **not yet published to the npm registry**. When it is, it will be
+`@totemstudioai/sdk`, owned by the `totemstudioai` npm organization. Never install
+a package with another name or owner: it would receive your secret key.
 
 TypeScript projects need `module`/`moduleResolution` `nodenext` (or
 `bundler`). A CommonJS project compiled with `nodenext` can import the SDK;
@@ -48,7 +48,7 @@ frontend code, mobile bundles, public runtime configuration, logs or source cont
 The SDK refuses to construct a client in a browser page or browser worker.
 
 ```ts
-import { TotemClient, TotemApiError } from '@totemstudio/sdk';
+import { TotemClient, TotemApiError } from '@totemstudioai/sdk';
 
 const client = new TotemClient({
   apiKey: process.env.TOTEM_API_KEY!,
@@ -144,7 +144,7 @@ page: save it and resume on your next poll (typically every 1–5 minutes). The
 SDK does not poll in the background.
 
 ```ts
-import { TotemApiError, isFeedRemoval } from '@totemstudio/sdk';
+import { TotemApiError, isFeedRemoval } from '@totemstudioai/sdk';
 
 try {
   for await (const page of client.pages('sync.changes', {

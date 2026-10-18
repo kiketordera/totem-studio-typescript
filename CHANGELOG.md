@@ -5,7 +5,12 @@ can change types or behaviour; each entry lists what to adapt.
 
 ## 0.1.0-beta.2
 
-Install from the release tarball (see the README); the SDK is not on the npm registry.
+Install from the release tarball (see the README); the SDK is not on the npm registry yet.
+
+### Renamed
+
+- The package is now `@totemstudioai/sdk` (was `@totemstudio/sdk`), matching the
+  `totemstudioai` npm organization it will be published under. Update your imports.
 
 ### Changed: adapt your code
 
@@ -46,7 +51,7 @@ Install from the release tarball (see the README); the SDK is not on the npm reg
   `isFeedRemoval()` guard.
 - Documentation comments on every method, parameter, schema and operation; the
   client's declarations name their response types.
-- `SDK_VERSION`, used in the `User-Agent`, and the `@totemstudio/sdk/package.json` export.
+- `SDK_VERSION`, used in the `User-Agent`, and the `@totemstudioai/sdk/package.json` export.
 - A `null` or `undefined` query value is omitted, so `cursor: page.next_cursor`
   works; optional options and query fields accept `undefined` under
   `exactOptionalPropertyTypes`.

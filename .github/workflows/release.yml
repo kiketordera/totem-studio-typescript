@@ -5,16 +5,23 @@ on:
       - 'v*'
 permissions:
   contents: write
+  # npm provenance for the optional publish step.
+  id-token: write
 jobs:
   release:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      # Set this repository secret (an npm automation token of the totemstudioai
+      # organization) to also publish each release to the npm registry.
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 24.18.0
           cache: npm
+          registry-url: https://registry.npmjs.org
       - run: npm ci --ignore-scripts
       - run: npm run health
       - name: Check that the tag names the package version
@@ -37,3 +44,12 @@ jobs:
           url="https://github.com/$GITHUB_REPOSITORY/releases/download/$GITHUB_REF_NAME/$FILE"
           printf 'Install:\n\n```sh\nnpm install %s\n```\n\nSHA-256 of `%s`: `%s`\n\nSee CHANGELOG.md for the changes in this release.\n' "$url" "$FILE" "$SHA256" > notes.md
           gh release create "$GITHUB_REF_NAME" "$FILE" "$FILE.sha256" $prerelease --title "$GITHUB_REF_NAME" --notes-file notes.md
+      - name: Publish to npm when the NPM_TOKEN secret is configured
+        if: env.NPM_TOKEN != ''
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          FILE: ${{ steps.pack.outputs.file }}
+        run: |
+          tag=latest
+          case "$GITHUB_REF_NAME" in *-*) tag=beta ;; esac
+          npm publish "$FILE" --provenance --access public --tag "$tag" --ignore-scripts

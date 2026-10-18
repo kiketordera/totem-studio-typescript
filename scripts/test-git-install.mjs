@@ -27,8 +27,8 @@ try {
   await mkdir(consumer);
   await writeFile(join(consumer, 'package.json'), JSON.stringify({ private: true, type: 'module' }));
   run('npm', ['install', `git+file://${repository}#${commit}`, '--ignore-scripts=false', '--no-audit', '--no-fund', '--package-lock=false'], consumer);
-  run(process.execPath, ['--input-type=module', '-e', "const { TotemClient } = await import('@totemstudio/sdk'); const client = new TotemClient({ apiKey: 'fictitious', fetch: async () => Response.json({ ok: true }) }); if (!(await client.me.get()).ok) throw new Error('ESM import of the Git install failed')"], consumer);
-  run(process.execPath, ['--input-type=commonjs', '-e', `const { TotemClient } = require('@totemstudio/sdk'); if (typeof TotemClient !== 'function') throw new Error('require of the Git install failed'); if (require('@totemstudio/sdk/package.json').version !== ${JSON.stringify(version)}) throw new Error('wrong version installed')`], consumer);
+  run(process.execPath, ['--input-type=module', '-e', "const { TotemClient } = await import('@totemstudioai/sdk'); const client = new TotemClient({ apiKey: 'fictitious', fetch: async () => Response.json({ ok: true }) }); if (!(await client.me.get()).ok) throw new Error('ESM import of the Git install failed')"], consumer);
+  run(process.execPath, ['--input-type=commonjs', '-e', `const { TotemClient } = require('@totemstudioai/sdk'); if (typeof TotemClient !== 'function') throw new Error('require of the Git install failed'); if (require('@totemstudioai/sdk/package.json').version !== ${JSON.stringify(version)}) throw new Error('wrong version installed')`], consumer);
   console.log(`Git install (git+file at ${commit.slice(0, 12)}, prepare build): ESM import, require() and package.json export all passed`);
 } catch (error) {
   if (error.stdout) process.stderr.write(error.stdout);

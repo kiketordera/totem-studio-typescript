@@ -22,8 +22,8 @@ try {
   await writeFile(join(temporary, 'package.json'), JSON.stringify({ private: true, type: 'module' }));
   run('npm', ['install', join(temporary, archive), '--ignore-scripts', '--no-audit', '--no-fund', '--package-lock=false']);
 
-  await writeFile(join(temporary, 'index.ts'), `import { TotemClient, TotemApiError, isFeedRemoval } from '@totemstudio/sdk';
-import type { Lead, FeedPage } from '@totemstudio/sdk';
+  await writeFile(join(temporary, 'index.ts'), `import { TotemClient, TotemApiError, isFeedRemoval } from '@totemstudioai/sdk';
+import type { Lead, FeedPage } from '@totemstudioai/sdk';
 declare const team: string | undefined;
 const client = new TotemClient({ apiKey: 'tsk_live_fictitious_pack_test', team, fetch: async () => Response.json({ object: 'list', data: [], has_more: false, next_cursor: null }) });
 const page = await client.leads.list({ limit: 1, status: 'new', cursor: null });
@@ -43,8 +43,8 @@ client.items('sync.changes');
   const cjs = join(temporary, 'cjs');
   await mkdir(cjs);
   await writeFile(join(cjs, 'package.json'), JSON.stringify({ private: true }));
-  await writeFile(join(cjs, 'index.ts'), `import { TotemClient, SDK_VERSION } from '@totemstudio/sdk';
-import type { Me } from '@totemstudio/sdk';
+  await writeFile(join(cjs, 'index.ts'), `import { TotemClient, SDK_VERSION } from '@totemstudioai/sdk';
+import type { Me } from '@totemstudioai/sdk';
 const client = new TotemClient({ apiKey: 'fictitious', fetch: async () => Response.json({ name: 'cjs' }) });
 client.me.get().then((me: Me) => { if (me.name !== 'cjs' || SDK_VERSION !== ${JSON.stringify(version)}) throw new Error('CommonJS TypeScript consumer failed'); });
 `);
@@ -53,12 +53,12 @@ client.me.get().then((me: Me) => { if (me.name !== 'cjs' || SDK_VERSION !== ${JS
   run(process.execPath, [join(cjs, 'out/index.js')], cjs);
 
   // Compile-only negative assertions must not execute.
-  await writeFile(join(temporary, 'run.mjs'), `import { TotemClient } from '@totemstudio/sdk'; const client = new TotemClient({ apiKey: 'fictitious', fetch: async () => Response.json({ result: true }) }); if (!(await client.me.get()).result) throw new Error('ESM packed import failed');`);
+  await writeFile(join(temporary, 'run.mjs'), `import { TotemClient } from '@totemstudioai/sdk'; const client = new TotemClient({ apiKey: 'fictitious', fetch: async () => Response.json({ result: true }) }); if (!(await client.me.get()).result) throw new Error('ESM packed import failed');`);
   run(process.execPath, ['run.mjs']);
-  run(process.execPath, ['--input-type=commonjs', '-e', `const { TotemClient } = require('@totemstudio/sdk'); if (typeof TotemClient !== 'function') throw new Error('require failed'); if (require('@totemstudio/sdk/package.json').version !== ${JSON.stringify(version)}) throw new Error('package.json export failed')`]);
+  run(process.execPath, ['--input-type=commonjs', '-e', `const { TotemClient } = require('@totemstudioai/sdk'); if (typeof TotemClient !== 'function') throw new Error('require failed'); if (require('@totemstudioai/sdk/package.json').version !== ${JSON.stringify(version)}) throw new Error('package.json export failed')`]);
 
   // LEGIT_GUARD: packaging contract in README.md "Types" — the published declarations name response types instead of inlining them, so field JSDoc survives.
-  const declarations = await readFile(join(temporary, 'node_modules/@totemstudio/sdk/dist/client.d.ts'), 'utf8');
+  const declarations = await readFile(join(temporary, 'node_modules/@totemstudioai/sdk/dist/client.d.ts'), 'utf8');
   if (!declarations.includes('Promise<LeadDetail>') || /"?object"?: "lead"/.test(declarations)) throw new Error('client.d.ts inlines response types');
   console.log('Packed consumer: ESM and CommonJS TypeScript compile, ESM runtime, require() and package.json export all passed');
 } catch (error) {

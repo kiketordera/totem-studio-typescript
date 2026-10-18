@@ -52,7 +52,7 @@ test('User-Agent names the package version, which SDK_VERSION exports', async co
   const requests = [];
   const baseUrl = await serve(context, request => { requests.push(request); return { body: {} }; });
   await new TotemClient({ apiKey: KEY, baseUrl }).me.get();
-  assert.equal(requests[0].headers['user-agent'], `@totemstudio/sdk/${version}`);
+  assert.equal(requests[0].headers['user-agent'], `@totemstudioai/sdk/${version}`);
   assert.equal(SDK_VERSION, version);
 });
 test('resource ids and cursors remain encoded URL data', async context => {
