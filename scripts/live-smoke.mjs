@@ -9,6 +9,7 @@ import { readFile, stat, writeFile } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import { TotemClient, TotemApiError, CONTRACT_SHA256, SDK_VERSION } from '../dist/index.js';
 import { operationDefinitions } from '../dist/generated/operations.js';
+import { parseSecretKey, wrongSecretKey } from './key-format.mjs';
 import { ResponseValidationError, VALIDATION_CODES, validateResponse } from './schema-validation.mjs';
 
 const FIXTURE_FIELDS = ['teamId', 'leadId', 'callId', 'conversationId', 'bookingId', 'searchEmail', 'foreignLeadId', 'foreignTeamId'];
@@ -33,7 +34,8 @@ async function configuration() {
     apiKey = (await readFile(keyFile, 'utf8').catch(() => { throw new SmokeConfigError('key_file_unreadable'); })).trim();
   }
   if (!apiKey) throw new SmokeConfigError('key_missing');
-  if (/[\r\n]/.test(apiKey)) throw new SmokeConfigError('key_invalid');
+  // A key the API would refuse unread fails here, before any request; its parts give the wrong-secret check its key.
+  if (/[\r\n]/.test(apiKey) || !parseSecretKey(apiKey)) throw new SmokeConfigError('key_invalid');
   let fixtures = {};
   if (process.env.TOTEM_LIVE_FIXTURES_FILE) {
     const text = await readFile(process.env.TOTEM_LIVE_FIXTURES_FILE, 'utf8').catch(() => { throw new SmokeConfigError('fixtures_unreadable'); });
@@ -149,7 +151,8 @@ async function main() {
     }
     await run('leads.search', { body: { email: fixtures.searchEmail ?? 'sdk-smoke-no-match@example.invalid' } });
     await walkFeed();
-    const badKeyClient = new TotemClient({ ...common, apiKey: 'tsk_live_invalid_sdk_smoke_key' });
+    // Well-formed, with this key's lookup id and another secret: the API must find the key and refuse the secret. Never printed or recorded.
+    const badKeyClient = new TotemClient({ ...common, apiKey: wrongSecretKey(apiKey) });
     await negative('invalid credentials', () => badKeyClient.me.get(), 401, 'invalid_credentials');
     await negative('invalid limit', () => client.request('leads.list', { query: { limit: 0 } }), 400, 'invalid_request');
     await negative('search requires one identifier', () => client.request('leads.search', { body: {} }), 400, 'invalid_request');

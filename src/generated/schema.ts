@@ -22,7 +22,7 @@ export interface Schemas {
 "lead": (string | null);
 /** When the change was saved. */
 "occurred_at": string;
-/** Who made the change: a person, the AI, Totem automation, an API caller, or unknown (no status marker, as for a stage-only or assignee-only change). */
+/** Who made the change: a person, the AI, Totem automation, an API caller, or unknown. Totem knows who made a change only when the same save wrote the lead's status, so a stage or assignee change made on its own reads unknown. */
 "actor_kind": (("human" | "ai" | "system" | "api" | "unknown") | (string & {}));
 /** The stage the lead was in after the change (for "clear pipeline data", the stage it left), or null. */
 "stage_snapshot": ({
@@ -58,7 +58,7 @@ export interface Schemas {
 "lead": (string | null);
 /** When the change was saved. */
 "occurred_at": string;
-/** Who made the change: a person, the AI, Totem automation, an API caller, or unknown (no status marker, as for a stage-only or assignee-only change). */
+/** Who made the change: a person, the AI, Totem automation, an API caller, or unknown. Totem knows who made a change only when the same save wrote the lead's status, so a stage or assignee change made on its own reads unknown. */
 "actor_kind": (("human" | "ai" | "system" | "api" | "unknown") | (string & {}));
 /** The stage the lead was in after the change (for "clear pipeline data", the stage it left), or null. */
 "stage_snapshot": ({
@@ -104,7 +104,7 @@ export interface Schemas {
 "lead": (string | null);
 /** When the change was saved. */
 "occurred_at": string;
-/** Who made the change: a person, the AI, Totem automation, an API caller, or unknown (no status marker, as for a stage-only or assignee-only change). */
+/** Who made the change: a person, the AI, Totem automation, an API caller, or unknown. Totem knows who made a change only when the same save wrote the lead's status, so a stage or assignee change made on its own reads unknown. */
 "actor_kind": (("human" | "ai" | "system" | "api" | "unknown") | (string & {}));
 /** The stage the lead was in after the change (for "clear pipeline data", the stage it left), or null. */
 "stage_snapshot": ({
@@ -155,7 +155,7 @@ export interface Schemas {
 "is_archived": boolean;
 /** The stage of this board a lead moves to when its first appointment is confirmed, or null when none is set or it names no stage of this board. */
 "appointment_booked_stage": (string | null);
-/** The board's stages, ordered by position, then by id. */
+/** The board's stages, ordered by position, then by id. A stage with no position stored at all is left out, although a lead can still name it. */
 "stages": Array<{
 /** Always `stage`. */
 "object": "stage";
@@ -163,7 +163,7 @@ export interface Schemas {
 "id": string;
 /** The stage's name, or null when none is stored. */
 "name": (string | null);
-/** The stage's position on its board, left to right; null when none is stored. Stages are listed in this order. */
+/** The stage's position on its board, left to right; null when the stored position is not a number. Stages are listed in this order. */
 "position": (number | null);
 /** True for the stage new leads of this board enter. */
 "is_default": boolean;
@@ -202,11 +202,11 @@ export interface Schemas {
 "team": string;
 /** The lead this booking belongs to, or null for a booking without a lead or when the lead no longer exists. Names and contact details appear only on the lead. */
 "lead": (string | null);
-/** `service_booking` (booked for a bookable service, by the AI, a customer or a person), `calendar_event` (an event from the connected calendar) or `external_import` (synced from an external booking system or read from a portal email). */
+/** `service_booking` (booked for a bookable service, by the AI, a customer or a person), `calendar_event` (an event from the connected calendar) or `external_import` (synced from an external booking system or read from a portal email). A booking from an origin this version does not know is reported as `calendar_event`. */
 "kind": (("service_booking" | "calendar_event" | "external_import") | (string & {}));
 /** The booked service (see `/booking_services`) on a `service_booking`; null otherwise. */
 "service": (string | null);
-/** `scheduled`, `rescheduled`, `cancelled`, `postponed`, `attended`, `no_show` or `team_no_show` (attendance is recorded only by people); null for a value this version does not know. */
+/** `scheduled`, `rescheduled`, `cancelled`, `postponed`, `attended`, `no_show` or `team_no_show` (attendance is recorded only by people); null for a value this version does not know. `rescheduled` means the booking was moved in place and its times are the new ones; a booking the AI replaced with a new one reads `cancelled`, with `rescheduled_to` set. */
 "status": ((("scheduled" | "rescheduled" | "cancelled" | "postponed" | "attended" | "no_show" | "team_no_show") | (string & {})) | null);
 /** When the booking starts (UTC). */
 "starts_at": (string | null);
@@ -218,7 +218,7 @@ export interface Schemas {
 "source": ((("ai" | "customer" | "operator") | (string & {})) | null);
 /** The booking this one replaced in a reschedule, or null. For a few seconds the replaced booking can still read `scheduled`; bookings rescheduled before Totem started recording this link may not have it. */
 "rescheduled_from": (string | null);
-/** The booking that replaced this one in a reschedule, or null. */
+/** The booking that replaced this one in a reschedule, or null. When it is set, this booking reads `cancelled`. */
 "rescheduled_to": (string | null);
 /** When the booking was recorded in Totem (UTC). */
 "created_at": (string | null);
@@ -284,7 +284,7 @@ export interface Schemas {
 "duration_seconds": (number | null);
 /** How the call ended: `answered_human`, `answered_ai`, `voicemail`, `no_answer`, `busy`, `failed`, or `unknown` (still live, or no evidence of who answered). Read it with `outcome_basis`. */
 "outcome": (("answered_human" | "answered_ai" | "voicemail" | "no_answer" | "busy" | "failed" | "unknown") | (string & {}));
-/** The evidence behind `outcome`: `inbound_verdict` (Totem's classification of an inbound call), `ai_analysis` (the AI voice provider's result), `duration_floor` (a human-line call of at least 10 seconds counts as answered), `carrier_answer_only` (only the carrier's answer signal, which never counts as answered: a connected call reads `unknown`), `browser_session` (a web voice session with the assistant), or `none`. */
+/** The evidence behind `outcome`: `inbound_verdict` (Totem's classification of an inbound call on its phone lines), `ai_analysis` (Totem's classification of the status, end reason and length that Retell reports), `duration_floor` (a call on a connected Zadarma PBX, where at least 10 seconds counts as answered), `carrier_answer_only` (only the carrier's answer signal, which never counts as answered, so a connected call reads `unknown`: every outbound call on Totem's phone lines, made by the AI or by a person, and an inbound one Totem has not classified), `browser_session` (a web voice session with the assistant), or `none` (no evidence, as for a call that is still live). */
 "outcome_basis": (("inbound_verdict" | "ai_analysis" | "duration_floor" | "carrier_answer_only" | "browser_session" | "none") | (string & {}));
 /** Increases every time one of the record's exported fields changes. Apply a change only when its version is greater than the one you hold. */
 "version": number;
@@ -314,19 +314,19 @@ export interface Schemas {
 "team": string;
 /** The lead this conversation is linked to, or null when it is unlinked or the lead no longer exists. Identity (name, phone, handle) travels on the lead only. */
 "lead": (string | null);
-/** The channel: `whatsapp`, `email`, `chatbot` (the web chat), `facebook`, `instagram`, `sms` or `tiktok`; null for a value this version does not know. A lead can have one conversation per channel and business account. */
+/** The channel: `whatsapp`, `email`, `chatbot` (the web chat), `facebook`, `instagram`, `sms` or `tiktok`; null for a value this version does not know. A lead can have several conversations on the same channel and business account, one for each contact address (phone number, email address or handle) it has used, so key your copy on `id`. */
 "channel_type": ((("sms" | "whatsapp" | "facebook" | "instagram" | "tiktok" | "chatbot" | "email") | (string & {})) | null);
 /** `active` or `archived` in the team's inbox; null for a value this version does not know. */
 "status": ((("active" | "archived") | (string & {})) | null);
 /** The team member assigned to the conversation (see `/members`), or null. */
 "assignee": (string | null);
-/** Who answers now: `human` while a person has taken the conversation over, `ai` otherwise. A timed takeover returns to `ai` when it expires, and the record's version changes then. */
+/** `human` while a person has taken the conversation over, including a WhatsApp chat answered from the WhatsApp Business app; `ai` otherwise. `ai` means no takeover is active, not that an assistant is set up or answering on this channel. A timed takeover returns to `ai` when it expires, and the record's version changes then. */
 "reply_mode": (("ai" | "human") | (string & {}));
 /** When the conversation was created (UTC). */
 "created_at": (string | null);
 /** The latest customer message (UTC). Not counted: erased messages, imported WhatsApp history and web-chat visitor turns, so a `chatbot` conversation reads null. Instagram shares cannot be told apart and count. */
 "last_inbound_at": (string | null);
-/** The latest message sent to the customer that did not fail (UTC), whoever sent it. */
+/** The latest message sent to the customer that did not fail (UTC), whoever sent it. Imported WhatsApp history counts. */
 "last_outbound_at": (string | null);
 /** Increases every time one of the record's exported fields changes. Apply a change only when its version is greater than the one you hold. */
 "version": number;
@@ -346,71 +346,79 @@ export interface Schemas {
 };
 /** One change: the record's current state, or its removal. */
 "FeedItem": ExclusiveUnion<({
-/** Always `lead` in this variant. */
+/** The kind of the record, such as `lead` or `call`. */
 "kind": "lead";
 /** Public id of the record; the facets `lead_attribution` and `lead_response` use their lead's id. */
 "id": string;
 /** The record's version. Apply the item only when it is greater than the version you hold. */
 "version": number;
+/** The record as it is now. */
 "object": Schemas["Lead"]
 } | {
-/** Always `lead_attribution` in this variant. */
+/** The kind of the record, such as `lead` or `call`. */
 "kind": "lead_attribution";
 /** Public id of the record; the facets `lead_attribution` and `lead_response` use their lead's id. */
 "id": string;
 /** The record's version. Apply the item only when it is greater than the version you hold. */
 "version": number;
+/** The record as it is now. */
 "object": Schemas["LeadAttribution"]
 } | {
-/** Always `lead_response` in this variant. */
+/** The kind of the record, such as `lead` or `call`. */
 "kind": "lead_response";
 /** Public id of the record; the facets `lead_attribution` and `lead_response` use their lead's id. */
 "id": string;
 /** The record's version. Apply the item only when it is greater than the version you hold. */
 "version": number;
+/** The record as it is now. */
 "object": Schemas["LeadResponse"]
 } | {
-/** Always `activity` in this variant. */
+/** The kind of the record, such as `lead` or `call`. */
 "kind": "activity";
 /** Public id of the record; the facets `lead_attribution` and `lead_response` use their lead's id. */
 "id": string;
 /** The record's version. Apply the item only when it is greater than the version you hold. */
 "version": number;
+/** The record as it is now. */
 "object": Schemas["Activity"]
 } | {
-/** Always `call` in this variant. */
+/** The kind of the record, such as `lead` or `call`. */
 "kind": "call";
 /** Public id of the record; the facets `lead_attribution` and `lead_response` use their lead's id. */
 "id": string;
 /** The record's version. Apply the item only when it is greater than the version you hold. */
 "version": number;
+/** The record as it is now. */
 "object": Schemas["Call"]
 } | {
-/** Always `conversation` in this variant. */
+/** The kind of the record, such as `lead` or `call`. */
 "kind": "conversation";
 /** Public id of the record; the facets `lead_attribution` and `lead_response` use their lead's id. */
 "id": string;
 /** The record's version. Apply the item only when it is greater than the version you hold. */
 "version": number;
+/** The record as it is now. */
 "object": Schemas["Conversation"]
 } | {
-/** Always `booking` in this variant. */
+/** The kind of the record, such as `lead` or `call`. */
 "kind": "booking";
 /** Public id of the record; the facets `lead_attribution` and `lead_response` use their lead's id. */
 "id": string;
 /** The record's version. Apply the item only when it is greater than the version you hold. */
 "version": number;
+/** The record as it is now. */
 "object": Schemas["Booking"]
 } | {
-/** Always `board` in this variant. */
+/** The kind of the record, such as `lead` or `call`. */
 "kind": "board";
 /** Public id of the record; the facets `lead_attribution` and `lead_response` use their lead's id. */
 "id": string;
 /** The record's version. Apply the item only when it is greater than the version you hold. */
 "version": number;
+/** The record as it is now. */
 "object": Schemas["Board"]
 } | {
-/** The kind of the removed record. */
+/** The kind of the record, such as `lead` or `call`. */
 "kind": ("lead" | "lead_attribution" | "lead_response" | "activity" | "call" | "conversation" | "booking" | "board");
 /** Public id of the removed record. */
 "id": string;
@@ -450,7 +458,7 @@ export interface Schemas {
 "livemode": boolean;
 /** The team the record belongs to. */
 "team": string;
-/** `lead` when the record has one of the eight statuses, otherwise `client`. */
+/** `lead` when the record has a pipeline status, otherwise `client`. A lead whose status this version does not know reads `status: null`. */
 "record_kind": (("lead" | "client") | (string & {}));
 /** First name or display name, or null. */
 "name": (string | null);
@@ -462,9 +470,9 @@ export interface Schemas {
 "company": (string | null);
 /** Phone in E.164, only when the stored number validates; otherwise null. */
 "phone": (string | null);
-/** `valid` (see `phone`), `invalid` (a number is stored but does not validate) or `missing`. */
+/** `valid` (see `phone`), `invalid` (a number is stored but does not validate, for example one stored without its country prefix) or `missing`. */
 "phone_status": (("valid" | "invalid" | "missing") | (string & {}));
-/** Pipeline status, or null for a client record. `converted` is not "won". */
+/** Pipeline status; null for a client record, or for a status this version does not know. `converted` is not "won". */
 "status": ((("new" | "contacted" | "qualified" | "negotiating" | "converted" | "lost" | "archived" | "unreachable") | (string & {})) | null);
 /** Who set the current status: a person, the AI, Totem automation, an API caller, or unknown (no recorded transition lands on it). Null when `status` is null. */
 "status_set_by": ((("human" | "ai" | "system" | "api" | "unknown") | (string & {})) | null);
@@ -503,7 +511,7 @@ export interface Schemas {
 } | null);
 /** When the contact last came back on their own and revived an archived lead, or null. */
 "revived_at": (string | null);
-/** True when the lead was converted with "clear pipeline data": board, stage, priority, assignees, estimated value and source fields are null because they were cleared. */
+/** True when the lead was converted with "clear pipeline data": board, stage, priority, assignees, estimated value and the source fields other than `source_channel` are null because they were cleared. */
 "pipeline_cleared": boolean;
 /** When the lead was converted, while its status is `converted`; otherwise null. */
 "converted_at": (string | null);
@@ -550,7 +558,7 @@ export interface Schemas {
 "team": string;
 /** How the lead first entered the CRM, frozen once; null when it was not captured. "Original" is the first time the contact entered the CRM, not the first ad it answered. */
 "original_capture": ({
-/** `at_creation`: frozen from the lead as it was first saved. `at_activation`: copied once from the lead as it was when the API was activated (a lead created before Totem started recording attribution). */
+/** `at_creation`: frozen from the lead as it was first saved. `at_activation`: copied once from the lead as it was when the API was activated, for a lead with no capture record (created before Totem started recording attribution, or whose creation was not recorded). */
 "capture": (("at_creation" | "at_activation") | (string & {}));
 /** When the record was written. */
 "captured_at": string;
@@ -765,7 +773,7 @@ export interface Schemas {
 } | null);
 /** `not_captured` when `original_capture` is null, otherwise null. */
 "original_capture_missing_reason": ((("not_captured") | (string & {})) | null);
-/** The newest ad submission recorded for this lead, including a repeat on an existing contact; null when none is recorded. A submission the ad platform reports deleted (a LinkedIn member deleting their form response) is no longer shown. */
+/** The newest ad submission recorded for this lead, including a repeat on an existing contact; null when none is recorded. A submission the ad platform reports deleted (a LinkedIn member deleting their form response) is no longer shown, and once the newest one expires or is withdrawn an older one can show instead. */
 "latest_submission": ({
 /** The ad platform. */
 "provider": (("meta" | "google_ads" | "linkedin") | (string & {}));
@@ -927,7 +935,7 @@ export interface Schemas {
 "livemode": boolean;
 /** The team the record belongs to. */
 "team": string;
-/** `lead` when the record has one of the eight statuses, otherwise `client`. */
+/** `lead` when the record has a pipeline status, otherwise `client`. A lead whose status this version does not know reads `status: null`. */
 "record_kind": (("lead" | "client") | (string & {}));
 /** First name or display name, or null. */
 "name": (string | null);
@@ -939,9 +947,9 @@ export interface Schemas {
 "company": (string | null);
 /** Phone in E.164, only when the stored number validates; otherwise null. */
 "phone": (string | null);
-/** `valid` (see `phone`), `invalid` (a number is stored but does not validate) or `missing`. */
+/** `valid` (see `phone`), `invalid` (a number is stored but does not validate, for example one stored without its country prefix) or `missing`. */
 "phone_status": (("valid" | "invalid" | "missing") | (string & {}));
-/** Pipeline status, or null for a client record. `converted` is not "won". */
+/** Pipeline status; null for a client record, or for a status this version does not know. `converted` is not "won". */
 "status": ((("new" | "contacted" | "qualified" | "negotiating" | "converted" | "lost" | "archived" | "unreachable") | (string & {})) | null);
 /** Who set the current status: a person, the AI, Totem automation, an API caller, or unknown (no recorded transition lands on it). Null when `status` is null. */
 "status_set_by": ((("human" | "ai" | "system" | "api" | "unknown") | (string & {})) | null);
@@ -980,7 +988,7 @@ export interface Schemas {
 } | null);
 /** When the contact last came back on their own and revived an archived lead, or null. */
 "revived_at": (string | null);
-/** True when the lead was converted with "clear pipeline data": board, stage, priority, assignees, estimated value and source fields are null because they were cleared. */
+/** True when the lead was converted with "clear pipeline data": board, stage, priority, assignees, estimated value and the source fields other than `source_channel` are null because they were cleared. */
 "pipeline_cleared": boolean;
 /** When the lead was converted, while its status is `converted`; otherwise null. */
 "converted_at": (string | null);
@@ -1014,7 +1022,9 @@ export interface Schemas {
 "version": number;
 /** When Totem recorded this version (UTC). It is not the time the business event happened. */
 "updated_at": string;
+/** The lead's attribution facet, or null while Totem is still preparing it. */
 "attribution": (Schemas["LeadAttribution"] | null);
+/** The lead's response facet, or null while Totem is still preparing it. */
 "response": (Schemas["LeadResponse"] | null)
 };
 /** A page of Lead objects, in a stable order that carries no meaning. */
@@ -1040,11 +1050,11 @@ export interface Schemas {
 "team": string;
 /** The latest message from the customer on any of the lead's conversations (UTC), or null. Not counted: erased messages, imported WhatsApp history and web-chat visitor turns. Instagram shares cannot be told apart and count. */
 "last_inbound_at": (string | null);
-/** The latest message sent to the customer that did not fail, on any of the lead's conversations and whoever sent it (UTC), or null. */
+/** The latest message sent to the customer that did not fail, on any of the lead's conversations and whoever sent it (UTC), or null. Imported WhatsApp history counts. */
 "last_outbound_at": (string | null);
 /** True when `last_inbound_at` is newer than the latest reply on any of the lead's conversations. A reply is a sent message that did not fail and was recorded as a conversation reply or with no purpose; outreach, transactional messages (such as reminders) and imported history do not count. Most stored messages carry no purpose, so an automated send recorded without one also counts as a reply. False when the customer has never written. */
 "awaiting_reply": boolean;
-/** When the latest of the lead's calls whose `outcome` is `answered_human` or `answered_ai` started (UTC), or null. */
+/** When the latest of the lead's calls whose `outcome` is `answered_human` or `answered_ai` started (UTC), or null. A connected outbound call on Totem's phone lines reads `unknown`, so it is not counted. */
 "last_answered_call_at": (string | null);
 /** `delivered`, `read` or `failed` for the latest message sent to the lead on WhatsApp. Null when that message has no receipt yet (`sent` is never stored) or the lead has no message sent on WhatsApp. */
 "last_whatsapp_delivery_status": ((("delivered" | "read" | "failed") | (string & {})) | null);
@@ -1137,7 +1147,7 @@ export interface Schemas {
 "name": (string | null);
 /** The team's IANA time zone: its business-hours zone when that is valid, otherwise its default country's (Europe/Madrid when neither is set). Interpret the team's local times with it. */
 "timezone": string;
-/** The team's default country (ISO 3166-1 alpha-2), used to read phone numbers written without a prefix; null when none is set. */
+/** The team's default country (ISO 3166-1 alpha-2), which Totem uses when someone types a phone number without a prefix; null when none is set. The API does not apply it: `Lead.phone` is validated without a default country, so a number stored without its country prefix reads `phone_status: invalid`. */
 "default_country": (string | null)
 };
 /** Every Team object, in one response: this list is never paged. */
@@ -1209,7 +1219,7 @@ export interface OperationContracts {
 /**
  * List team members
  *
- * Lists every member of the team in one response that is never paged and takes no `limit` or `cursor`. Members are not in the changes feed: read this list when you start syncing a team, again when an item names a member you do not know, and at least once a day.
+ * Lists every member of the team in one response that is never paged and takes no `limit` or `cursor`. Members are not in the changes feed: read this list when you start syncing a team, again when an item names a member you do not know, and at least once a day. A member who leaves the team drops out of the list while older records keep naming its id, so keep a name you need from an earlier read.
  */
 "members.list": { response: Schemas["MemberList"] & {
 /** Always `list`. */
@@ -1228,7 +1238,7 @@ export interface OperationContracts {
 /**
  * List bookable services
  *
- * Lists every bookable service of the team in one response that is never paged and takes no `limit` or `cursor`. Bookable services are not in the changes feed: read this list when you start syncing a team, again when a booking names a service you do not know, and at least once a day.
+ * Lists every bookable service of the team in one response that is never paged and takes no `limit` or `cursor`. Bookable services are not in the changes feed: read this list when you start syncing a team, again when a booking names a service you do not know, and at least once a day. A deleted service drops out of the list while its bookings keep naming its id, so keep a service name you need from an earlier read.
  */
 "booking_services.list": { response: Schemas["BookingServiceList"] & {
 /** Always `list`. */
@@ -1302,7 +1312,7 @@ export interface OperationContracts {
 /**
  * List a lead's activities
  *
- * Returns a page of the lead's activities: each change of its stage, status or assigned members, with when it happened and who made it. Activities never change once written, and new ones also arrive in the changes feed.
+ * Returns a page of the lead's activities: each change of its stage, status or assigned members, with when it happened and, when Totem recorded it, who made it. Pages are not in date order, so sort by `occurred_at`. Activities never change once written, and new ones also arrive in the changes feed.
  */
 "leads.activities": { response: Schemas["ActivityList"]; query: {
 /** Items per page, 1–100. Defaults to 25. */
@@ -1340,7 +1350,7 @@ export interface OperationContracts {
 /**
  * List conversations
  *
- * Returns a page of the team's conversations, one per lead, channel and business account: channel, inbox status, assignee and the times of the latest inbound and outbound messages. Message content is never exported.
+ * Returns a page of the team's conversations, one per channel, business account and contact address: channel, inbox status, assignee and the times of the latest inbound and outbound messages. Message content is never exported.
  */
 "conversations.list": { response: Schemas["ConversationList"]; query: {
 /** Items per page, 1–100. Defaults to 25. */

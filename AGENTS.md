@@ -25,7 +25,10 @@ lead runs one final health gate. `npm run test:git-install` needs registry
 access and is not part of health; CI runs it.
 
 Releases: bump `package.json`, run `npm run generate`, add a CHANGELOG entry,
-then push a `v<version>` tag; `.github/workflows/release.yml` publishes the
-tarball and its SHA-256. Commit completed validated work automatically; stage
-only owned files. Publishing GitHub releases, npm packages or deployments
-requires task authorization.
+point the README's download links at the new version, then push a
+`v<version>` tag; `.github/workflows/release.yml` publishes the tarball and its
+SHA-256, and stops when the README links other release files. Workflow actions
+are pinned by full commit SHA with the release in a comment: update both
+together. Only the npm publish step may receive `NPM_TOKEN`. Commit completed
+validated work automatically; stage only owned files. Publishing GitHub
+releases, npm packages or deployments requires task authorization.

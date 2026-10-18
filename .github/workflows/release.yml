@@ -4,23 +4,27 @@ on:
     tags:
       - 'v*'
 permissions:
-  contents: write
-  # npm provenance for the optional publish step.
-  id-token: write
+  contents: read
 jobs:
   release:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      # gh release create.
+      contents: write
+      # npm provenance for the optional npm publish.
+      id-token: write
     env:
-      # Set this repository secret (an npm automation token of the totemstudioai
-      # organization) to also publish each release to the npm registry.
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # The README's GitHub release download links.
+      RELEASE_LINK: 'https://github\.com/[^[:space:])`"]*/releases/download/[^[:space:])`"]*'
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      # Actions are pinned by full commit SHA; the comment names the release.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 24.18.0
-          cache: npm
           registry-url: https://registry.npmjs.org
       - run: npm ci --ignore-scripts
       - run: npm run health
@@ -33,23 +37,48 @@ jobs:
           sha256sum "$file" > "$file.sha256"
           echo "file=$file" >> "$GITHUB_OUTPUT"
           echo "sha256=$(cut -d ' ' -f 1 "$file.sha256")" >> "$GITHUB_OUTPUT"
+      - name: Check that the README installs this release's files
+        env:
+          FILE: ${{ steps.pack.outputs.file }}
+        run: |
+          base="https://github.com/$GITHUB_REPOSITORY/releases/download/$GITHUB_REF_NAME"
+          links="$(grep -oE "$RELEASE_LINK" README.md | sort -u)"
+          printf '%s\n' "$links" | grep -qxF "$base/$FILE" || { echo "::error::README.md does not install $base/$FILE"; exit 1; }
+          for link in $links; do
+            case "$link" in
+              "$base/$FILE" | "$base/$FILE.sha256") ;;
+              *) echo "::error::README.md links another release file: $link"; exit 1 ;;
+            esac
+          done
       - name: Create the GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           FILE: ${{ steps.pack.outputs.file }}
           SHA256: ${{ steps.pack.outputs.sha256 }}
         run: |
           prerelease=""
           case "$GITHUB_REF_NAME" in *-*) prerelease="--prerelease" ;; esac
           url="https://github.com/$GITHUB_REPOSITORY/releases/download/$GITHUB_REF_NAME/$FILE"
-          printf 'Install:\n\n```sh\nnpm install %s\n```\n\nSHA-256 of `%s`: `%s`\n\nSee CHANGELOG.md for the changes in this release.\n' "$url" "$FILE" "$SHA256" > notes.md
+          {
+            printf 'Download the tarball and its checksum, check it, then install the file you checked:\n\n```sh\n'
+            printf 'curl -fLO %s\ncurl -fLO %s.sha256\nshasum -a 256 -c %s.sha256\nnpm install ./%s\n```\n\n' "$url" "$url" "$FILE" "$FILE"
+            printf 'SHA-256 of `%s`: `%s`\n\nSee CHANGELOG.md for the changes in this release.\n' "$FILE" "$SHA256"
+          } > notes.md
           gh release create "$GITHUB_REF_NAME" "$FILE" "$FILE.sha256" $prerelease --title "$GITHUB_REF_NAME" --notes-file notes.md
+      - name: Check that the README's release links resolve
+        run: |
+          for link in $(grep -oE "$RELEASE_LINK" README.md | sort -u); do
+            curl -fsSIL --retry 5 --retry-delay 3 --retry-all-errors -o /dev/null "$link" || { echo "::error::$link does not resolve"; exit 1; }
+          done
       - name: Publish to npm when the NPM_TOKEN secret is configured
-        if: env.NPM_TOKEN != ''
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # Set this repository secret (an npm automation token of the totemstudioai
+          # organization) to also publish each release to npm. Only this step receives it.
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           FILE: ${{ steps.pack.outputs.file }}
         run: |
+          if [ -z "$NPM_TOKEN" ]; then echo "::notice::NPM_TOKEN is not set, so nothing is published to npm"; exit 0; fi
           tag=latest
           case "$GITHUB_REF_NAME" in *-*) tag=beta ;; esac
-          npm publish "$FILE" --provenance --access public --tag "$tag" --ignore-scripts
+          NODE_AUTH_TOKEN="$NPM_TOKEN" npm publish "$FILE" --provenance --access public --tag "$tag" --ignore-scripts

@@ -8,7 +8,8 @@ export async function listNewLeads(apiKey: string, team?: string) {
     console.log(`Connected to ${integration.name}`)
     for await (const lead of client.items('leads.list', { query: { status: 'new', limit: 100 } })) {
       // Enums can grow: keep a default branch for statuses this SDK does not know yet.
-      console.log(lead.id, lead.name, lead.status ?? 'none')
+      // Log ids, not names or contact details: they are personal data.
+      console.log(lead.id, lead.status ?? 'none')
     }
   } catch (error) {
     // The message names only status, code and parameter; quote requestId to support.

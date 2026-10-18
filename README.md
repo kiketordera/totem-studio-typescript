@@ -11,16 +11,25 @@ of an ES module works without a flag). Built and checked with **TypeScript
 ## Install
 
 Install the release tarball. It contains the built package, so it needs no
-Git, no build step and no install scripts, and it works with `ignore-scripts`:
+Git, no build step and no install scripts, and it works with `ignore-scripts`.
+Download the tarball and its checksum, check it, then install the file you
+checked:
 
 ```sh
-npm install https://github.com/kiketordera/totem-studio-typescript/releases/download/v0.1.0-beta.2/totemstudioai-sdk-0.1.0-beta.2.tgz
+curl -fLO https://github.com/kiketordera/totem-studio-typescript/releases/download/v0.1.0-beta.2/totemstudioai-sdk-0.1.0-beta.2.tgz
+curl -fLO https://github.com/kiketordera/totem-studio-typescript/releases/download/v0.1.0-beta.2/totemstudioai-sdk-0.1.0-beta.2.tgz.sha256
+shasum -a 256 -c totemstudioai-sdk-0.1.0-beta.2.tgz.sha256
+npm install ./totemstudioai-sdk-0.1.0-beta.2.tgz
 ```
 
-Each [GitHub release](https://github.com/kiketordera/totem-studio-typescript/releases)
-lists the tarball's SHA-256 and attaches it as a `.sha256` file. Check the file
-you downloaded against it (`shasum -a 256 totemstudioai-sdk-0.1.0-beta.2.tgz`).
-Import the package by its name, `@totemstudioai/sdk`.
+`sha256sum -c` works as well as `shasum -a 256 -c`. The checksum shows that
+your download is complete and unchanged. It does not prove who built the file,
+because it is published on the same
+[GitHub release](https://github.com/kiketordera/totem-studio-typescript/releases)
+as the tarball. npm records the dependency as a `file:` path to that tarball,
+so keep the tarball where you installed it from: later installs such as
+`npm ci` read it from there. Import the package by its name,
+`@totemstudioai/sdk`.
 
 Alternatively, install the Git tag. This builds the package with TypeScript
 through its `prepare` script, so it **needs lifecycle scripts**: with
@@ -32,9 +41,9 @@ import fails.
 npm install github:kiketordera/totem-studio-typescript#v0.1.0-beta.2
 ```
 
-The SDK is **not yet published to the npm registry**. When it is, it will be
-`@totemstudioai/sdk`, owned by the `totemstudioai` npm organization. Never install
-a package with another name or owner: it would receive your secret key.
+The SDK is **not published to the npm registry yet**, so a package named
+`@totemstudioai/sdk` on npm is not Totem's until this README links it. Never
+give your secret key to a package installed any other way than the ones above.
 
 TypeScript projects need `module`/`moduleResolution` `nodenext` (or
 `bundler`). A CommonJS project compiled with `nodenext` can import the SDK;
@@ -46,6 +55,9 @@ Create an API integration in Totem Settings → Developers. Keep the secret on
 **your server**, in a secret manager or environment variable. Never put it in
 frontend code, mobile bundles, public runtime configuration, logs or source control.
 The SDK refuses to construct a client in a browser page or browser worker.
+
+The examples are ES modules and use `await` at the top level. In a CommonJS
+project, put them inside an `async` function.
 
 ```ts
 import { TotemClient, TotemApiError } from '@totemstudioai/sdk';
@@ -146,35 +158,43 @@ SDK does not poll in the background.
 ```ts
 import { TotemApiError, isFeedRemoval } from '@totemstudioai/sdk';
 
+// Each team has its own cursor and copy: sync one team at a time.
+const team = 'team_...';
 try {
   for await (const page of client.pages('sync.changes', {
-    query: { limit: 100, cursor: savedCursor },
+    team,
+    query: { limit: 100, cursor: await loadCursor(team) },
   })) {
     for (const item of page.data) {
       // The feed can deliver a record more than once: apply only a newer version.
-      if (item.version <= (await heldVersion(item.kind, item.id) ?? 0)) continue;
+      if (item.version <= (await heldVersion(team, item.kind, item.id) ?? 0)) continue;
       // Check for a removal before reading `object`.
-      if (isFeedRemoval(item)) await deleteCopy(item.kind, item.id, item.version);
-      else if (item.kind === 'lead') await saveLead(item.object, item.version); // item.object is a Lead
-      else await saveRecord(item.kind, item.object, item.version);
+      if (isFeedRemoval(item)) await deleteCopy(team, item.kind, item.id, item.version);
+      else if (item.kind === 'lead') await saveLead(team, item.object, item.version); // item.object is a Lead
+      else await saveRecord(team, item.kind, item.object, item.version);
     }
     // Atomically save the cursor AFTER applying the whole page.
-    await saveCursor(page.next_cursor);
+    await saveCursor(team, page.next_cursor);
   }
 } catch (error) {
   if (!(error instanceof TotemApiError)) throw error;
   switch (error.action) {
-    case 'resync': await fullResync(); break;      // resync_required, sync_cursor_expired
-    case 'wait_capture': break;                     // capture_not_ready: keep data and cursor, retry later
-    case 'drop_team': await recheckTeams(); break;  // team_not_accessible
+    case 'resync': await fullResync(team); break;     // resync_required, sync_cursor_expired
+    case 'wait_capture':                               // capture_not_ready
+    case 'keep_and_retry': break;                      // e.g. 403 team_state_restricted: keep data and cursor, retry later
+    case 'drop_team': await recheckTeams(team); break; // team_not_accessible
     default: throw error;
   }
 }
 ```
 
 - `409 resync_required` and `410 sync_cursor_expired` (`action: 'resync'`)
-  both need the documented full resync: mark every local record, re-read the
-  feed without a cursor, and delete what was not seen again.
+  both need the documented full resync: forget the team's stored versions and
+  cursor (keep the records), re-read the feed without a cursor while marking
+  every record it delivers, then delete the team's records that were not
+  marked. Forgetting the versions matters: after a restore the feed can deliver
+  lower versions than the ones you held, and the version check above would
+  skip them.
 - `409 capture_not_ready` (`action: 'wait_capture'`) means Totem is still
   preparing the team: keep your data and cursor and retry in a few minutes.
   Never resync for it. A `403` with `action: 'keep_and_retry'` (for example
@@ -184,7 +204,11 @@ try {
 
 The [full synchronization guide](https://totemstudio.ai/developers/sync) explains
 versions, removals and mark-and-sweep. [`examples/sync.ts`](examples/sync.ts)
-is a complete typed worker.
+is a minimal typed feed loop for one team: it leaves the full resync to your
+store. The guide's
+[tested reference client](https://totemstudio.ai/developers/sync#tested-reference-client)
+does every step, including the full resync, the board, member and service
+lists, and every team of a key.
 
 Cursors are opaque strings. They are encoded as query data, never followed as
 URLs. HTTP redirects are refused, so credentials never follow redirect targets.
@@ -279,7 +303,9 @@ version, used to generate this release.
 
 Releases: pushing a `v*` tag that matches `package.json` runs the release
 workflow, which runs `health`, packs the tarball and publishes it with its
-SHA-256 as a GitHub release (a prerelease for versions with a `-`). See
+SHA-256 as a GitHub release (a prerelease for versions with a `-`). It stops
+before the release when this README's download links name other files, and
+fails when they do not resolve once the release exists. See
 [CHANGELOG.md](CHANGELOG.md).
 
 ### Live test
@@ -299,6 +325,13 @@ npm run test:live
 
 The key file contains only the key. `TOTEM_API_KEY` is supported when a secret
 manager injects it as an environment variable. Never pass keys on command lines.
+A key that is not a well-formed `tsk_live_` key stops the run with `key_invalid`
+before any request. The `invalid credentials` check sends a key with your key's
+lookup id and a different, random secret, so only the API's secret check can
+refuse it. That counts as one failed attempt for your key and address on the
+[failed-attempt limit](https://totemstudio.ai/developers/authentication#failed-attempts).
+The script never prints or records that key.
+
 The fixture JSON may contain `teamId`, `leadId`, `callId`, `conversationId`,
 `bookingId`, `searchEmail`, `foreignLeadId` and `foreignTeamId`; otherwise the
 script selects the first captured record in each collection, and it needs

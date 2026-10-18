@@ -3,6 +3,41 @@
 The SDK follows the Totem API Beta. Until 1.0, a minor or prerelease version
 can change types or behaviour; each entry lists what to adapt.
 
+## Unreleased
+
+Not released. `main` still reports `SDK_VERSION` `0.1.0-beta.2`, but its
+`CONTRACT_SHA256` differs from the published 0.1.0-beta.2 tarball: tell the two
+apart by `CONTRACT_SHA256`. The next release bumps the version.
+
+### Contract
+
+- Generated from the API contract with SHA-256
+  `f9eaf5a99fd7b78320d11ff97600092a0c0529124af56ff6bba70554cf4ea8e2` (`CONTRACT_SHA256`).
+  Only documentation comments changed: no type, method or runtime behaviour.
+- Error catalogue: `sector_restricted` is no longer reserved. Totem returns it
+  for a team in a sensitive sector, such as health care, whose data it does not
+  export. `invalid_request` also covers a conversations cursor whose
+  conversation was erased. `quota_exceeded` says that every list counts toward
+  the quota, including `GET /v1/teams`, `GET /v1/members`,
+  `GET /v1/booking_services` and a lead's activities. `key_expired` no longer
+  mentions an expiry date. `service_unavailable` is reserved: the API itself
+  does not return it today.
+- The fixes in `openapi.json` (`x-totem-errors`, not part of the package) now
+  say that while `plan_not_entitled`, `team_state_restricted` or
+  `sector_restricted` refuses access, the changes feed delivers nothing for the
+  team, removals included, so delete your copy once that lasts longer than your
+  retention policy allows.
+- Descriptions now say that a member who leaves and a deleted bookable service
+  drop out of their lists while records keep their ids; that activity pages are
+  not in date order and that a stage or assignee change made on its own has an
+  unknown actor; that a lead can have several conversations on one channel and
+  business account, one per contact address; that a stage with no stored
+  position is left out of its board; how a reschedule reads (`rescheduled` in
+  place, or `cancelled` with `rescheduled_to`); what each `outcome_basis` value
+  means; that a lead whose status this version does not know reads
+  `status: null`; and that `Lead.phone` is validated without the team's default
+  country.
+
 ## 0.1.0-beta.2
 
 Install from the release tarball (see the README); the SDK is not on the npm registry yet.

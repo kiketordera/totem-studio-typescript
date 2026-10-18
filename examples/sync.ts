@@ -11,13 +11,17 @@ interface SyncStore {
   heldVersion(team: string, kind: FeedItem['kind'], id: string): Promise<number | undefined>
   /** In one transaction: apply the changes, then save the cursor. */
   commit(team: string, changes: Change[], nextCursor: string): Promise<void>
-  /** The documented full resync: mark every record, re-read the feed from the start, then sweep what was not seen. */
+  /** The documented full resync, which your store implements: forget the team's versions and cursor, re-read the feed without a cursor marking every record, then delete what was not marked. */
   resync(team: string): Promise<void>
   /** Delete the team's copy and its cursor. */
   dropTeam(team: string): Promise<void>
 }
 
-/** Call every 1–5 minutes, one team at a time. */
+/**
+ * A minimal feed loop for one team. Call it every 1–5 minutes, one team at a
+ * time. The sync guide's tested reference client also covers the full resync,
+ * the board, member and service lists, and every team of a key.
+ */
 export async function syncTeam(apiKey: string, team: string, store: SyncStore, signal?: AbortSignal) {
   const client = new TotemClient({ apiKey, team })
   try {

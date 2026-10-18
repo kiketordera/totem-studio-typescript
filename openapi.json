@@ -445,8 +445,8 @@
         ],
         "summary": "List team members",
         "x-summary-es": "Lista los miembros del equipo",
-        "description": "Lists every member of the team in one response that is never paged and takes no `limit` or `cursor`. Members are not in the changes feed: read this list when you start syncing a team, again when an item names a member you do not know, and at least once a day.",
-        "x-description-es": "Lista todos los miembros del equipo en una sola respuesta, que nunca se pagina y no admite `limit` ni `cursor`. Los miembros no llegan por el feed de cambios: lee esta lista al empezar a sincronizar un equipo, de nuevo cuando un elemento indique un miembro que no conoces y, como mínimo, una vez al día.",
+        "description": "Lists every member of the team in one response that is never paged and takes no `limit` or `cursor`. Members are not in the changes feed: read this list when you start syncing a team, again when an item names a member you do not know, and at least once a day. A member who leaves the team drops out of the list while older records keep naming its id, so keep a name you need from an earlier read.",
+        "x-description-es": "Lista todos los miembros del equipo en una sola respuesta, que nunca se pagina y no admite `limit` ni `cursor`. Los miembros no llegan por el feed de cambios: lee esta lista al empezar a sincronizar un equipo, de nuevo cuando un elemento indique un miembro que no conoces y, como mínimo, una vez al día. Un miembro que deja el equipo sale de la lista, pero los registros anteriores siguen indicando su identificador, así que conserva de una lectura anterior el nombre que necesites.",
         "parameters": [
           {
             "$ref": "#/components/parameters/TotemTeam"
@@ -550,8 +550,8 @@
         ],
         "summary": "List bookable services",
         "x-summary-es": "Lista los servicios reservables",
-        "description": "Lists every bookable service of the team in one response that is never paged and takes no `limit` or `cursor`. Bookable services are not in the changes feed: read this list when you start syncing a team, again when a booking names a service you do not know, and at least once a day.",
-        "x-description-es": "Lista todos los servicios reservables del equipo en una sola respuesta, que nunca se pagina y no admite `limit` ni `cursor`. Los servicios reservables no llegan por el feed de cambios: lee esta lista al empezar a sincronizar un equipo, de nuevo cuando una cita indique un servicio que no conoces y, como mínimo, una vez al día.",
+        "description": "Lists every bookable service of the team in one response that is never paged and takes no `limit` or `cursor`. Bookable services are not in the changes feed: read this list when you start syncing a team, again when a booking names a service you do not know, and at least once a day. A deleted service drops out of the list while its bookings keep naming its id, so keep a service name you need from an earlier read.",
+        "x-description-es": "Lista todos los servicios reservables del equipo en una sola respuesta, que nunca se pagina y no admite `limit` ni `cursor`. Los servicios reservables no llegan por el feed de cambios: lee esta lista al empezar a sincronizar un equipo, de nuevo cuando una cita indique un servicio que no conoces y, como mínimo, una vez al día. Un servicio borrado sale de la lista, pero sus citas siguen indicando su identificador, así que conserva de una lectura anterior el nombre de servicio que necesites.",
         "parameters": [
           {
             "$ref": "#/components/parameters/TotemTeam"
@@ -1287,8 +1287,8 @@
         ],
         "summary": "List a lead's activities",
         "x-summary-es": "Lista las actividades de un lead",
-        "description": "Returns a page of the lead's activities: each change of its stage, status or assigned members, with when it happened and who made it. Activities never change once written, and new ones also arrive in the changes feed.",
-        "x-description-es": "Devuelve una página de actividades del lead: cada cambio de etapa, de estado o de miembros asignados, con cuándo ocurrió y quién lo hizo. Una actividad no cambia una vez escrita, y las nuevas también llegan por el feed de cambios.",
+        "description": "Returns a page of the lead's activities: each change of its stage, status or assigned members, with when it happened and, when Totem recorded it, who made it. Pages are not in date order, so sort by `occurred_at`. Activities never change once written, and new ones also arrive in the changes feed.",
+        "x-description-es": "Devuelve una página de actividades del lead: cada cambio de etapa, de estado o de miembros asignados, con cuándo ocurrió y, si Totem lo registró, quién lo hizo. Las páginas no van por fecha, así que ordena por `occurred_at`. Una actividad no cambia una vez escrita, y las nuevas también llegan por el feed de cambios.",
         "parameters": [
           {
             "name": "id",
@@ -1471,11 +1471,11 @@
                       "livemode": false,
                       "team": "team_r9uYrIW4gSFJJ6hZQ9ip1UIpPaAD1CF7NR",
                       "lead": "lead_r72EfbRNUzuqORFJR0O8HxAwEXd93jGUTYMaMMXKSF0QbLS8CiUKJpEP34LFQG",
-                      "direction": "outbound",
+                      "direction": "inbound",
                       "started_at": "2026-09-28T10:17:00.000Z",
                       "duration_seconds": 184,
                       "outcome": "answered_ai",
-                      "outcome_basis": "ai_analysis",
+                      "outcome_basis": "inbound_verdict",
                       "version": 2,
                       "updated_at": "2026-09-28T10:21:04.010Z"
                     }
@@ -1561,11 +1561,11 @@
                   "livemode": false,
                   "team": "team_r9uYrIW4gSFJJ6hZQ9ip1UIpPaAD1CF7NR",
                   "lead": "lead_r72EfbRNUzuqORFJR0O8HxAwEXd93jGUTYMaMMXKSF0QbLS8CiUKJpEP34LFQG",
-                  "direction": "outbound",
+                  "direction": "inbound",
                   "started_at": "2026-09-28T10:17:00.000Z",
                   "duration_seconds": 184,
                   "outcome": "answered_ai",
-                  "outcome_basis": "ai_analysis",
+                  "outcome_basis": "inbound_verdict",
                   "version": 2,
                   "updated_at": "2026-09-28T10:21:04.010Z"
                 }
@@ -1610,8 +1610,8 @@
         ],
         "summary": "List conversations",
         "x-summary-es": "Lista las conversaciones",
-        "description": "Returns a page of the team's conversations, one per lead, channel and business account: channel, inbox status, assignee and the times of the latest inbound and outbound messages. Message content is never exported.",
-        "x-description-es": "Devuelve una página de conversaciones del equipo, una por lead, canal y cuenta de empresa: canal, estado en la bandeja de entrada, responsable y la hora de los últimos mensajes recibidos y enviados. El contenido de los mensajes nunca se exporta.",
+        "description": "Returns a page of the team's conversations, one per channel, business account and contact address: channel, inbox status, assignee and the times of the latest inbound and outbound messages. Message content is never exported.",
+        "x-description-es": "Devuelve una página de conversaciones del equipo, una por canal, cuenta de empresa y dirección de contacto: canal, estado en la bandeja de entrada, responsable y la hora de los últimos mensajes recibidos y enviados. El contenido de los mensajes nunca se exporta.",
         "parameters": [
           {
             "name": "limit",
@@ -2385,8 +2385,8 @@
                   "api",
                   "unknown"
                 ],
-                "description": "Who made the change: a person, the AI, Totem automation, an API caller, or unknown (no status marker, as for a stage-only or assignee-only change).",
-                "x-description-es": "Quién hizo el cambio: una persona, la IA, la automatización de Totem, una llamada a la API o desconocido (sin marca de estado, como en un cambio solo de etapa o de responsables)."
+                "description": "Who made the change: a person, the AI, Totem automation, an API caller, or unknown. Totem knows who made a change only when the same save wrote the lead's status, so a stage or assignee change made on its own reads unknown.",
+                "x-description-es": "Quién hizo el cambio: una persona, la IA, la automatización de Totem, una llamada a la API o desconocido. Totem sabe quién hizo un cambio solo cuando el mismo guardado escribió el estado del lead, así que un cambio de etapa o de responsables hecho por sí solo es desconocido."
               },
               "stage_snapshot": {
                 "anyOf": [
@@ -2578,8 +2578,8 @@
                   "api",
                   "unknown"
                 ],
-                "description": "Who made the change: a person, the AI, Totem automation, an API caller, or unknown (no status marker, as for a stage-only or assignee-only change).",
-                "x-description-es": "Quién hizo el cambio: una persona, la IA, la automatización de Totem, una llamada a la API o desconocido (sin marca de estado, como en un cambio solo de etapa o de responsables)."
+                "description": "Who made the change: a person, the AI, Totem automation, an API caller, or unknown. Totem knows who made a change only when the same save wrote the lead's status, so a stage or assignee change made on its own reads unknown.",
+                "x-description-es": "Quién hizo el cambio: una persona, la IA, la automatización de Totem, una llamada a la API o desconocido. Totem sabe quién hizo un cambio solo cuando el mismo guardado escribió el estado del lead, así que un cambio de etapa o de responsables hecho por sí solo es desconocido."
               },
               "stage_snapshot": {
                 "anyOf": [
@@ -2815,8 +2815,8 @@
                   "api",
                   "unknown"
                 ],
-                "description": "Who made the change: a person, the AI, Totem automation, an API caller, or unknown (no status marker, as for a stage-only or assignee-only change).",
-                "x-description-es": "Quién hizo el cambio: una persona, la IA, la automatización de Totem, una llamada a la API o desconocido (sin marca de estado, como en un cambio solo de etapa o de responsables)."
+                "description": "Who made the change: a person, the AI, Totem automation, an API caller, or unknown. Totem knows who made a change only when the same save wrote the lead's status, so a stage or assignee change made on its own reads unknown.",
+                "x-description-es": "Quién hizo el cambio: una persona, la IA, la automatización de Totem, una llamada a la API o desconocido. Totem sabe quién hizo un cambio solo cuando el mismo guardado escribió el estado del lead, así que un cambio de etapa o de responsables hecho por sí solo es desconocido."
               },
               "stage_snapshot": {
                 "anyOf": [
@@ -3133,8 +3133,8 @@
                   "x-description-es": "El nombre de la etapa, o null si no hay ninguno guardado."
                 },
                 "position": {
-                  "description": "The stage's position on its board, left to right; null when none is stored. Stages are listed in this order.",
-                  "x-description-es": "La posición de la etapa en su tablero, de izquierda a derecha; null si no hay ninguna guardada. Las etapas se listan en este orden.",
+                  "description": "The stage's position on its board, left to right; null when the stored position is not a number. Stages are listed in this order.",
+                  "x-description-es": "La posición de la etapa en su tablero, de izquierda a derecha; null si la posición guardada no es un número. Las etapas se listan en este orden.",
                   "type": [
                     "number",
                     "null"
@@ -3186,8 +3186,8 @@
               "description": "A stage of the board.",
               "x-description-es": "Una etapa del tablero."
             },
-            "description": "The board's stages, ordered by position, then by id.",
-            "x-description-es": "Las etapas del tablero, ordenadas por posición y después por id."
+            "description": "The board's stages, ordered by position, then by id. A stage with no position stored at all is left out, although a lead can still name it.",
+            "x-description-es": "Las etapas del tablero, ordenadas por posición y después por id. Una etapa sin ninguna posición guardada no aparece, aunque un lead puede seguir indicándola."
           },
           "version": {
             "type": "integer",
@@ -3403,8 +3403,8 @@
               "calendar_event",
               "external_import"
             ],
-            "description": "`service_booking` (booked for a bookable service, by the AI, a customer or a person), `calendar_event` (an event from the connected calendar) or `external_import` (synced from an external booking system or read from a portal email).",
-            "x-description-es": "`service_booking` (una cita de un servicio reservable, creada por la IA, un cliente o una persona), `calendar_event` (un evento del calendario conectado) o `external_import` (sincronizada desde un sistema de citas externo o leída de un correo electrónico de un portal)."
+            "description": "`service_booking` (booked for a bookable service, by the AI, a customer or a person), `calendar_event` (an event from the connected calendar) or `external_import` (synced from an external booking system or read from a portal email). A booking from an origin this version does not know is reported as `calendar_event`.",
+            "x-description-es": "`service_booking` (una cita de un servicio reservable, creada por la IA, un cliente o una persona), `calendar_event` (un evento del calendario conectado) o `external_import` (sincronizada desde un sistema de citas externo o leída de un correo electrónico de un portal). Una cita de un origen que esta versión no conoce aparece como `calendar_event`."
           },
           "service": {
             "anyOf": [
@@ -3437,8 +3437,8 @@
                 "type": "null"
               }
             ],
-            "description": "`scheduled`, `rescheduled`, `cancelled`, `postponed`, `attended`, `no_show` or `team_no_show` (attendance is recorded only by people); null for a value this version does not know.",
-            "x-description-es": "`scheduled`, `rescheduled`, `cancelled`, `postponed`, `attended`, `no_show` o `team_no_show` (la asistencia solo la registran personas); null si es un valor que esta versión no conoce."
+            "description": "`scheduled`, `rescheduled`, `cancelled`, `postponed`, `attended`, `no_show` or `team_no_show` (attendance is recorded only by people); null for a value this version does not know. `rescheduled` means the booking was moved in place and its times are the new ones; a booking the AI replaced with a new one reads `cancelled`, with `rescheduled_to` set.",
+            "x-description-es": "`scheduled`, `rescheduled`, `cancelled`, `postponed`, `attended`, `no_show` o `team_no_show` (la asistencia solo la registran personas); null si es un valor que esta versión no conoce. `rescheduled` significa que la cita se movió sin cambiar de registro y sus horas son las nuevas; una cita que la IA sustituyó por otra queda en `cancelled`, con `rescheduled_to`."
           },
           "starts_at": {
             "anyOf": [
@@ -3523,8 +3523,8 @@
                 "type": "null"
               }
             ],
-            "description": "The booking that replaced this one in a reschedule, or null.",
-            "x-description-es": "La cita que sustituyó a esta al reprogramar, o null."
+            "description": "The booking that replaced this one in a reschedule, or null. When it is set, this booking reads `cancelled`.",
+            "x-description-es": "La cita que sustituyó a esta al reprogramar, o null. Cuando está indicada, esta cita queda en `cancelled`."
           },
           "created_at": {
             "anyOf": [
@@ -3896,8 +3896,8 @@
               "browser_session",
               "none"
             ],
-            "description": "The evidence behind `outcome`: `inbound_verdict` (Totem's classification of an inbound call), `ai_analysis` (the AI voice provider's result), `duration_floor` (a human-line call of at least 10 seconds counts as answered), `carrier_answer_only` (only the carrier's answer signal, which never counts as answered: a connected call reads `unknown`), `browser_session` (a web voice session with the assistant), or `none`.",
-            "x-description-es": "La prueba detrás de `outcome`: `inbound_verdict` (la clasificación de Totem de una llamada entrante), `ai_analysis` (el resultado del proveedor de voz IA), `duration_floor` (una llamada de línea humana de al menos 10 segundos cuenta como contestada), `carrier_answer_only` (solo la señal de respuesta del operador, que nunca cuenta como contestada: una llamada conectada es `unknown`), `browser_session` (una sesión de voz web con el asistente) o `none`."
+            "description": "The evidence behind `outcome`: `inbound_verdict` (Totem's classification of an inbound call on its phone lines), `ai_analysis` (Totem's classification of the status, end reason and length that Retell reports), `duration_floor` (a call on a connected Zadarma PBX, where at least 10 seconds counts as answered), `carrier_answer_only` (only the carrier's answer signal, which never counts as answered, so a connected call reads `unknown`: every outbound call on Totem's phone lines, made by the AI or by a person, and an inbound one Totem has not classified), `browser_session` (a web voice session with the assistant), or `none` (no evidence, as for a call that is still live).",
+            "x-description-es": "La prueba detrás de `outcome`: `inbound_verdict` (la clasificación de Totem de una llamada entrante en sus líneas de teléfono), `ai_analysis` (la clasificación que hace Totem del estado, el motivo de fin y la duración que informa Retell), `duration_floor` (una llamada en una centralita Zadarma conectada, donde al menos 10 segundos cuentan como contestada), `carrier_answer_only` (solo la señal de respuesta del operador, que nunca cuenta como contestada, así que una llamada conectada es `unknown`: todas las salientes en las líneas de Totem, las haga la IA o una persona, y una entrante que Totem no ha clasificado), `browser_session` (una sesión de voz web con el asistente) o `none` (ninguna prueba, como en una llamada que sigue en curso)."
           },
           "version": {
             "type": "integer",
@@ -3935,11 +3935,11 @@
             "livemode": false,
             "team": "team_r9uYrIW4gSFJJ6hZQ9ip1UIpPaAD1CF7NR",
             "lead": "lead_r72EfbRNUzuqORFJR0O8HxAwEXd93jGUTYMaMMXKSF0QbLS8CiUKJpEP34LFQG",
-            "direction": "outbound",
+            "direction": "inbound",
             "started_at": "2026-09-28T10:17:00.000Z",
             "duration_seconds": 184,
             "outcome": "answered_ai",
-            "outcome_basis": "ai_analysis",
+            "outcome_basis": "inbound_verdict",
             "version": 2,
             "updated_at": "2026-09-28T10:21:04.010Z"
           }
@@ -3994,11 +3994,11 @@
                 "livemode": false,
                 "team": "team_r9uYrIW4gSFJJ6hZQ9ip1UIpPaAD1CF7NR",
                 "lead": "lead_r72EfbRNUzuqORFJR0O8HxAwEXd93jGUTYMaMMXKSF0QbLS8CiUKJpEP34LFQG",
-                "direction": "outbound",
+                "direction": "inbound",
                 "started_at": "2026-09-28T10:17:00.000Z",
                 "duration_seconds": 184,
                 "outcome": "answered_ai",
-                "outcome_basis": "ai_analysis",
+                "outcome_basis": "inbound_verdict",
                 "version": 2,
                 "updated_at": "2026-09-28T10:21:04.010Z"
               }
@@ -4065,8 +4065,8 @@
                 "type": "null"
               }
             ],
-            "description": "The channel: `whatsapp`, `email`, `chatbot` (the web chat), `facebook`, `instagram`, `sms` or `tiktok`; null for a value this version does not know. A lead can have one conversation per channel and business account.",
-            "x-description-es": "El canal: `whatsapp`, `email`, `chatbot` (el chat web), `facebook`, `instagram`, `sms` o `tiktok`; null si es un valor que esta versión no conoce. Un lead puede tener una conversación por canal y cuenta de empresa."
+            "description": "The channel: `whatsapp`, `email`, `chatbot` (the web chat), `facebook`, `instagram`, `sms` or `tiktok`; null for a value this version does not know. A lead can have several conversations on the same channel and business account, one for each contact address (phone number, email address or handle) it has used, so key your copy on `id`.",
+            "x-description-es": "El canal: `whatsapp`, `email`, `chatbot` (el chat web), `facebook`, `instagram`, `sms` o `tiktok`; null si es un valor que esta versión no conoce. Un lead puede tener varias conversaciones en el mismo canal y cuenta de empresa, una por cada dirección de contacto (teléfono, correo electrónico o usuario) que haya usado, así que usa el `id` como clave de tu copia."
           },
           "status": {
             "anyOf": [
@@ -4103,8 +4103,8 @@
               "ai",
               "human"
             ],
-            "description": "Who answers now: `human` while a person has taken the conversation over, `ai` otherwise. A timed takeover returns to `ai` when it expires, and the record's version changes then.",
-            "x-description-es": "Quién responde ahora: `human` mientras una persona ha tomado la conversación, `ai` en otro caso. Una toma temporal vuelve a `ai` cuando caduca, y la versión del registro cambia entonces."
+            "description": "`human` while a person has taken the conversation over, including a WhatsApp chat answered from the WhatsApp Business app; `ai` otherwise. `ai` means no takeover is active, not that an assistant is set up or answering on this channel. A timed takeover returns to `ai` when it expires, and the record's version changes then.",
+            "x-description-es": "`human` mientras una persona ha tomado la conversación, incluido un chat de WhatsApp que se atiende desde la app WhatsApp Business; `ai` en otro caso. `ai` significa que no hay una toma activa, no que haya un asistente configurado o respondiendo en este canal. Una toma temporal vuelve a `ai` cuando caduca, y la versión del registro cambia entonces."
           },
           "created_at": {
             "anyOf": [
@@ -4142,8 +4142,8 @@
                 "type": "null"
               }
             ],
-            "description": "The latest message sent to the customer that did not fail (UTC), whoever sent it.",
-            "x-description-es": "El último mensaje enviado al cliente que no falló (UTC), lo enviara quien lo enviara."
+            "description": "The latest message sent to the customer that did not fail (UTC), whoever sent it. Imported WhatsApp history counts.",
+            "x-description-es": "El último mensaje enviado al cliente que no falló (UTC), lo enviara quien lo enviara. El historial de WhatsApp importado sí cuenta."
           },
           "version": {
             "type": "integer",
@@ -4268,8 +4268,8 @@
               "kind": {
                 "type": "string",
                 "const": "lead",
-                "description": "Always `lead` in this variant.",
-                "x-description-es": "Siempre `lead` en esta variante."
+                "description": "The kind of the record, such as `lead` or `call`.",
+                "x-description-es": "El tipo del registro, como `lead` o `call`."
               },
               "id": {
                 "type": "string",
@@ -4284,6 +4284,8 @@
                 "x-description-es": "La versión del registro. Aplica el elemento solo si es mayor que la versión que guardas."
               },
               "object": {
+                "description": "The record as it is now.",
+                "x-description-es": "El registro tal como está ahora.",
                 "$ref": "#/components/schemas/Lead"
               }
             },
@@ -4300,8 +4302,8 @@
               "kind": {
                 "type": "string",
                 "const": "lead_attribution",
-                "description": "Always `lead_attribution` in this variant.",
-                "x-description-es": "Siempre `lead_attribution` en esta variante."
+                "description": "The kind of the record, such as `lead` or `call`.",
+                "x-description-es": "El tipo del registro, como `lead` o `call`."
               },
               "id": {
                 "type": "string",
@@ -4316,6 +4318,8 @@
                 "x-description-es": "La versión del registro. Aplica el elemento solo si es mayor que la versión que guardas."
               },
               "object": {
+                "description": "The record as it is now.",
+                "x-description-es": "El registro tal como está ahora.",
                 "$ref": "#/components/schemas/LeadAttribution"
               }
             },
@@ -4332,8 +4336,8 @@
               "kind": {
                 "type": "string",
                 "const": "lead_response",
-                "description": "Always `lead_response` in this variant.",
-                "x-description-es": "Siempre `lead_response` en esta variante."
+                "description": "The kind of the record, such as `lead` or `call`.",
+                "x-description-es": "El tipo del registro, como `lead` o `call`."
               },
               "id": {
                 "type": "string",
@@ -4348,6 +4352,8 @@
                 "x-description-es": "La versión del registro. Aplica el elemento solo si es mayor que la versión que guardas."
               },
               "object": {
+                "description": "The record as it is now.",
+                "x-description-es": "El registro tal como está ahora.",
                 "$ref": "#/components/schemas/LeadResponse"
               }
             },
@@ -4364,8 +4370,8 @@
               "kind": {
                 "type": "string",
                 "const": "activity",
-                "description": "Always `activity` in this variant.",
-                "x-description-es": "Siempre `activity` en esta variante."
+                "description": "The kind of the record, such as `lead` or `call`.",
+                "x-description-es": "El tipo del registro, como `lead` o `call`."
               },
               "id": {
                 "type": "string",
@@ -4380,6 +4386,8 @@
                 "x-description-es": "La versión del registro. Aplica el elemento solo si es mayor que la versión que guardas."
               },
               "object": {
+                "description": "The record as it is now.",
+                "x-description-es": "El registro tal como está ahora.",
                 "$ref": "#/components/schemas/Activity"
               }
             },
@@ -4396,8 +4404,8 @@
               "kind": {
                 "type": "string",
                 "const": "call",
-                "description": "Always `call` in this variant.",
-                "x-description-es": "Siempre `call` en esta variante."
+                "description": "The kind of the record, such as `lead` or `call`.",
+                "x-description-es": "El tipo del registro, como `lead` o `call`."
               },
               "id": {
                 "type": "string",
@@ -4412,6 +4420,8 @@
                 "x-description-es": "La versión del registro. Aplica el elemento solo si es mayor que la versión que guardas."
               },
               "object": {
+                "description": "The record as it is now.",
+                "x-description-es": "El registro tal como está ahora.",
                 "$ref": "#/components/schemas/Call"
               }
             },
@@ -4428,8 +4438,8 @@
               "kind": {
                 "type": "string",
                 "const": "conversation",
-                "description": "Always `conversation` in this variant.",
-                "x-description-es": "Siempre `conversation` en esta variante."
+                "description": "The kind of the record, such as `lead` or `call`.",
+                "x-description-es": "El tipo del registro, como `lead` o `call`."
               },
               "id": {
                 "type": "string",
@@ -4444,6 +4454,8 @@
                 "x-description-es": "La versión del registro. Aplica el elemento solo si es mayor que la versión que guardas."
               },
               "object": {
+                "description": "The record as it is now.",
+                "x-description-es": "El registro tal como está ahora.",
                 "$ref": "#/components/schemas/Conversation"
               }
             },
@@ -4460,8 +4472,8 @@
               "kind": {
                 "type": "string",
                 "const": "booking",
-                "description": "Always `booking` in this variant.",
-                "x-description-es": "Siempre `booking` en esta variante."
+                "description": "The kind of the record, such as `lead` or `call`.",
+                "x-description-es": "El tipo del registro, como `lead` o `call`."
               },
               "id": {
                 "type": "string",
@@ -4476,6 +4488,8 @@
                 "x-description-es": "La versión del registro. Aplica el elemento solo si es mayor que la versión que guardas."
               },
               "object": {
+                "description": "The record as it is now.",
+                "x-description-es": "El registro tal como está ahora.",
                 "$ref": "#/components/schemas/Booking"
               }
             },
@@ -4492,8 +4506,8 @@
               "kind": {
                 "type": "string",
                 "const": "board",
-                "description": "Always `board` in this variant.",
-                "x-description-es": "Siempre `board` en esta variante."
+                "description": "The kind of the record, such as `lead` or `call`.",
+                "x-description-es": "El tipo del registro, como `lead` o `call`."
               },
               "id": {
                 "type": "string",
@@ -4508,6 +4522,8 @@
                 "x-description-es": "La versión del registro. Aplica el elemento solo si es mayor que la versión que guardas."
               },
               "object": {
+                "description": "The record as it is now.",
+                "x-description-es": "El registro tal como está ahora.",
                 "$ref": "#/components/schemas/Board"
               }
             },
@@ -4533,8 +4549,8 @@
                   "booking",
                   "board"
                 ],
-                "description": "The kind of the removed record.",
-                "x-description-es": "El tipo del registro eliminado."
+                "description": "The kind of the record, such as `lead` or `call`.",
+                "x-description-es": "El tipo del registro, como `lead` o `call`."
               },
               "id": {
                 "type": "string",
@@ -4836,8 +4852,8 @@
               "lead",
               "client"
             ],
-            "description": "`lead` when the record has one of the eight statuses, otherwise `client`.",
-            "x-description-es": "`lead` si el registro tiene uno de los ocho estados; si no, `client`."
+            "description": "`lead` when the record has a pipeline status, otherwise `client`. A lead whose status this version does not know reads `status: null`.",
+            "x-description-es": "`lead` si el registro tiene un estado del embudo; si no, `client`. Un lead cuyo estado no conoce esta versión trae `status: null`."
           },
           "name": {
             "description": "First name or display name, or null.",
@@ -4886,8 +4902,8 @@
               "invalid",
               "missing"
             ],
-            "description": "`valid` (see `phone`), `invalid` (a number is stored but does not validate) or `missing`.",
-            "x-description-es": "`valid` (ver `phone`), `invalid` (hay un número guardado que no es válido) o `missing`."
+            "description": "`valid` (see `phone`), `invalid` (a number is stored but does not validate, for example one stored without its country prefix) or `missing`.",
+            "x-description-es": "`valid` (ver `phone`), `invalid` (hay un número guardado que no es válido, por ejemplo uno guardado sin prefijo de país) o `missing`."
           },
           "status": {
             "anyOf": [
@@ -4908,8 +4924,8 @@
                 "type": "null"
               }
             ],
-            "description": "Pipeline status, or null for a client record. `converted` is not \"won\".",
-            "x-description-es": "Estado en el embudo, o null en un cliente. `converted` no significa \"ganado\"."
+            "description": "Pipeline status; null for a client record, or for a status this version does not know. `converted` is not \"won\".",
+            "x-description-es": "Estado en el embudo; null en un cliente o si es un estado que esta versión no conoce. `converted` no significa \"ganado\"."
           },
           "status_set_by": {
             "anyOf": [
@@ -5144,8 +5160,8 @@
           },
           "pipeline_cleared": {
             "type": "boolean",
-            "description": "True when the lead was converted with \"clear pipeline data\": board, stage, priority, assignees, estimated value and source fields are null because they were cleared.",
-            "x-description-es": "Verdadero si el lead se convirtió con \"borrar datos del embudo\": tablero, etapa, prioridad, responsables, valor estimado y origen son null porque se borraron."
+            "description": "True when the lead was converted with \"clear pipeline data\": board, stage, priority, assignees, estimated value and the source fields other than `source_channel` are null because they were cleared.",
+            "x-description-es": "Verdadero si el lead se convirtió con \"borrar datos del embudo\": tablero, etapa, prioridad, responsables, valor estimado y los campos de origen salvo `source_channel` son null porque se borraron."
           },
           "converted_at": {
             "anyOf": [
@@ -5458,8 +5474,8 @@
                       "at_creation",
                       "at_activation"
                     ],
-                    "description": "`at_creation`: frozen from the lead as it was first saved. `at_activation`: copied once from the lead as it was when the API was activated (a lead created before Totem started recording attribution).",
-                    "x-description-es": "`at_creation`: fijado con el lead tal como se guardó por primera vez. `at_activation`: copiado una vez del lead tal como estaba al activar la API (un lead anterior a que Totem empezara a registrar la atribución)."
+                    "description": "`at_creation`: frozen from the lead as it was first saved. `at_activation`: copied once from the lead as it was when the API was activated, for a lead with no capture record (created before Totem started recording attribution, or whose creation was not recorded).",
+                    "x-description-es": "`at_creation`: fijado con el lead tal como se guardó por primera vez. `at_activation`: copiado una vez del lead tal como estaba al activar la API, para un lead sin registro de captura (creado antes de que Totem empezara a registrar la atribución, o cuya creación no se registró)."
                   },
                   "captured_at": {
                     "type": "string",
@@ -7097,8 +7113,8 @@
                 "type": "null"
               }
             ],
-            "description": "The newest ad submission recorded for this lead, including a repeat on an existing contact; null when none is recorded. A submission the ad platform reports deleted (a LinkedIn member deleting their form response) is no longer shown.",
-            "x-description-es": "El envío de anuncio más reciente registrado para este lead, incluida una repetición sobre un contacto existente; null si no hay ninguno. Un envío que la plataforma de anuncios informa como borrado (un miembro de LinkedIn que borra su respuesta al formulario) deja de mostrarse."
+            "description": "The newest ad submission recorded for this lead, including a repeat on an existing contact; null when none is recorded. A submission the ad platform reports deleted (a LinkedIn member deleting their form response) is no longer shown, and once the newest one expires or is withdrawn an older one can show instead.",
+            "x-description-es": "El envío de anuncio más reciente registrado para este lead, incluida una repetición sobre un contacto existente; null si no hay ninguno. Un envío que la plataforma de anuncios informa como borrado (un miembro de LinkedIn que borra su respuesta al formulario) deja de mostrarse, y cuando el más reciente caduca o se retira puede mostrarse uno anterior."
           },
           "latest_submission_missing_reason": {
             "anyOf": [
@@ -7278,8 +7294,8 @@
               "lead",
               "client"
             ],
-            "description": "`lead` when the record has one of the eight statuses, otherwise `client`.",
-            "x-description-es": "`lead` si el registro tiene uno de los ocho estados; si no, `client`."
+            "description": "`lead` when the record has a pipeline status, otherwise `client`. A lead whose status this version does not know reads `status: null`.",
+            "x-description-es": "`lead` si el registro tiene un estado del embudo; si no, `client`. Un lead cuyo estado no conoce esta versión trae `status: null`."
           },
           "name": {
             "description": "First name or display name, or null.",
@@ -7328,8 +7344,8 @@
               "invalid",
               "missing"
             ],
-            "description": "`valid` (see `phone`), `invalid` (a number is stored but does not validate) or `missing`.",
-            "x-description-es": "`valid` (ver `phone`), `invalid` (hay un número guardado que no es válido) o `missing`."
+            "description": "`valid` (see `phone`), `invalid` (a number is stored but does not validate, for example one stored without its country prefix) or `missing`.",
+            "x-description-es": "`valid` (ver `phone`), `invalid` (hay un número guardado que no es válido, por ejemplo uno guardado sin prefijo de país) o `missing`."
           },
           "status": {
             "anyOf": [
@@ -7350,8 +7366,8 @@
                 "type": "null"
               }
             ],
-            "description": "Pipeline status, or null for a client record. `converted` is not \"won\".",
-            "x-description-es": "Estado en el embudo, o null en un cliente. `converted` no significa \"ganado\"."
+            "description": "Pipeline status; null for a client record, or for a status this version does not know. `converted` is not \"won\".",
+            "x-description-es": "Estado en el embudo; null en un cliente o si es un estado que esta versión no conoce. `converted` no significa \"ganado\"."
           },
           "status_set_by": {
             "anyOf": [
@@ -7586,8 +7602,8 @@
           },
           "pipeline_cleared": {
             "type": "boolean",
-            "description": "True when the lead was converted with \"clear pipeline data\": board, stage, priority, assignees, estimated value and source fields are null because they were cleared.",
-            "x-description-es": "Verdadero si el lead se convirtió con \"borrar datos del embudo\": tablero, etapa, prioridad, responsables, valor estimado y origen son null porque se borraron."
+            "description": "True when the lead was converted with \"clear pipeline data\": board, stage, priority, assignees, estimated value and the source fields other than `source_channel` are null because they were cleared.",
+            "x-description-es": "Verdadero si el lead se convirtió con \"borrar datos del embudo\": tablero, etapa, prioridad, responsables, valor estimado y los campos de origen salvo `source_channel` son null porque se borraron."
           },
           "converted_at": {
             "anyOf": [
@@ -7775,7 +7791,9 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "The lead's attribution facet, or null while Totem is still preparing it.",
+            "x-description-es": "La faceta de atribución del lead, o null mientras Totem aún la prepara."
           },
           "response": {
             "anyOf": [
@@ -7785,7 +7803,9 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "The lead's response facet, or null while Totem is still preparing it.",
+            "x-description-es": "La faceta de respuesta del lead, o null mientras Totem aún la prepara."
           }
         },
         "required": [
@@ -8157,8 +8177,8 @@
                 "type": "null"
               }
             ],
-            "description": "The latest message sent to the customer that did not fail, on any of the lead's conversations and whoever sent it (UTC), or null.",
-            "x-description-es": "El último mensaje enviado al cliente que no falló, en cualquiera de las conversaciones del lead y lo enviara quien lo enviara (UTC), o null."
+            "description": "The latest message sent to the customer that did not fail, on any of the lead's conversations and whoever sent it (UTC), or null. Imported WhatsApp history counts.",
+            "x-description-es": "El último mensaje enviado al cliente que no falló, en cualquiera de las conversaciones del lead y lo enviara quien lo enviara (UTC), o null. El historial de WhatsApp importado sí cuenta."
           },
           "awaiting_reply": {
             "type": "boolean",
@@ -8175,8 +8195,8 @@
                 "type": "null"
               }
             ],
-            "description": "When the latest of the lead's calls whose `outcome` is `answered_human` or `answered_ai` started (UTC), or null.",
-            "x-description-es": "Cuándo empezó la última llamada del lead cuyo `outcome` es `answered_human` o `answered_ai` (UTC), o null."
+            "description": "When the latest of the lead's calls whose `outcome` is `answered_human` or `answered_ai` started (UTC), or null. A connected outbound call on Totem's phone lines reads `unknown`, so it is not counted.",
+            "x-description-es": "Cuándo empezó la última llamada del lead cuyo `outcome` es `answered_human` o `answered_ai` (UTC), o null. Una saliente conectada en las líneas de teléfono de Totem es `unknown`, así que no cuenta."
           },
           "last_whatsapp_delivery_status": {
             "anyOf": [
@@ -8654,8 +8674,8 @@
                 "type": "null"
               }
             ],
-            "description": "The team's default country (ISO 3166-1 alpha-2), used to read phone numbers written without a prefix; null when none is set.",
-            "x-description-es": "El país por defecto del equipo (ISO 3166-1 alfa-2), con el que se leen los teléfonos escritos sin prefijo; null si no hay ninguno."
+            "description": "The team's default country (ISO 3166-1 alpha-2), which Totem uses when someone types a phone number without a prefix; null when none is set. The API does not apply it: `Lead.phone` is validated without a default country, so a number stored without its country prefix reads `phone_status: invalid`.",
+            "x-description-es": "El país por defecto del equipo (ISO 3166-1 alfa-2), que Totem usa cuando alguien escribe un teléfono sin prefijo; null si no hay ninguno. La API no lo aplica: `Lead.phone` se valida sin país por defecto, así que un número guardado sin prefijo de país tiene `phone_status: invalid`."
           }
         },
         "required": [
@@ -8740,7 +8760,7 @@
   },
   "x-totem-policy": {
     "ACTIVATION_MARGIN_MS": 60000,
-    "ADMIN_ACCESS_DISCLOSURE_VERSION": "2026-10-15",
+    "ADMIN_ACCESS_DISCLOSURE_VERSION": "2026-10-17",
     "AUDIT_RETENTION_DAYS": 365,
     "AUTH_FAILURE_LIMITS": {
       "perIpPerMinute": 60,
@@ -8792,7 +8812,7 @@
       168
     ],
     "SEARCH_MAX_RESULTS": 10,
-    "SENSITIVE_SECTOR_POLICY": "allow",
+    "SENSITIVE_SECTOR_POLICY": "exclude",
     "SENSITIVE_SECTOR_POLICY_OPTIONS": [
       "exclude",
       "allow"
@@ -8812,10 +8832,10 @@
       "status": 400,
       "title": "Invalid request",
       "action": "fix_request",
-      "description": "Something in the request is not valid: an unknown, repeated or out-of-range query parameter, a query string or body on an endpoint that takes none, a cursor issued for another endpoint, filter or team, a malformed `Totem-Team` header, or a body that is not the JSON this endpoint expects. `param` names the parameter, header or field at fault.",
-      "x-description-es": "Algo de la petición no es válido: un parámetro de consulta desconocido, repetido o fuera de rango, una cadena de consulta o un cuerpo en un endpoint que no los admite, un cursor emitido para otro endpoint, otros filtros u otro equipo, una cabecera `Totem-Team` mal formada o un cuerpo que no es el JSON que espera el endpoint. `param` indica el parámetro, la cabecera o el campo que ha fallado.",
-      "fix": "Correct what `param` names before you retry: the same request fails the same way. For a cursor, send the `next_cursor` you received from the same endpoint, with the same filters and team.",
-      "x-fix-es": "Corrige lo que indica `param` antes de reintentar: la misma petición falla igual. Si es un cursor, envía el `next_cursor` que recibiste del mismo endpoint, con los mismos filtros y el mismo equipo.",
+      "description": "Something in the request is not valid: an unknown, repeated or out-of-range query parameter, a query string or body on an endpoint that takes none, a cursor issued for another endpoint, filter or team, a malformed `Totem-Team` header, or a body that is not the JSON this endpoint expects. `param` names the parameter, header or field at fault. A conversations cursor is also refused once the conversation it points at has been erased.",
+      "x-description-es": "Algo de la petición no es válido: un parámetro de consulta desconocido, repetido o fuera de rango, una cadena de consulta o un cuerpo en un endpoint que no los admite, un cursor emitido para otro endpoint, otros filtros u otro equipo, una cabecera `Totem-Team` mal formada o un cuerpo que no es el JSON que espera el endpoint. `param` indica el parámetro, la cabecera o el campo que ha fallado. Un cursor de conversaciones también se rechaza cuando se suprime la conversación a la que apunta.",
+      "fix": "Correct what `param` names before you retry: the same request fails the same way. For a cursor, send the `next_cursor` you received from the same endpoint, with the same filters and team. If a conversations cursor you did not change is refused, start that list again from the first page.",
+      "x-fix-es": "Corrige lo que indica `param` antes de reintentar: la misma petición falla igual. Si es un cursor, envía el `next_cursor` que recibiste del mismo endpoint, con los mismos filtros y el mismo equipo. Si se rechaza un cursor de conversaciones que no cambiaste, vuelve a empezar esa lista desde la primera página.",
       "doc_url": "https://totemstudio.ai/developers/errors#invalid_request"
     },
     "team_required": {
@@ -8852,8 +8872,8 @@
       "status": 401,
       "title": "Key expired",
       "action": "check_credentials",
-      "description": "The key was rolled and its grace period is over, or it reached its expiry date.",
-      "x-description-es": "La clave se rotó y su periodo de gracia ha terminado, o llegó a su fecha de caducidad.",
+      "description": "The key was rolled and its grace period is over.",
+      "x-description-es": "La clave se rotó y su periodo de gracia ha terminado.",
       "fix": "Deploy the key that replaced it: the old key is past its grace period and will not work again. If there is no replacement, create a new key in Settings → Developers.",
       "x-fix-es": "Despliega la clave que la sustituyó: la antigua ya superó su periodo de gracia y no volverá a funcionar. Si no hay ninguna que la sustituya, crea una clave nueva en Ajustes → Desarrolladores.",
       "doc_url": "https://totemstudio.ai/developers/errors#key_expired"
@@ -8874,8 +8894,8 @@
       "action": "keep_and_retry",
       "description": "The organization's plan does not include the Totem API at the moment.",
       "x-description-es": "El plan de la organización no incluye ahora mismo la API de Totem.",
-      "fix": "Keep your data and cursors, and pause calls until the customer has a plan with API access again; then continue where you left off.",
-      "x-fix-es": "Conserva tus datos y tus cursores y deja de llamar hasta que el cliente vuelva a tener un plan con acceso a la API; después, continúa donde lo dejaste.",
+      "fix": "Keep your data and cursors, and pause calls until the customer has a plan with API access again; then continue where you left off. While access is refused, the feed delivers nothing for the key's teams, removals included: if the refusal lasts longer than your retention policy allows, delete your copy.",
+      "x-fix-es": "Conserva tus datos y tus cursores y deja de llamar hasta que el cliente vuelva a tener un plan con acceso a la API; después, continúa donde lo dejaste. Mientras el acceso está denegado, el feed no entrega nada de los equipos de la clave, tampoco eliminaciones: si la denegación dura más de lo que permite tu política de conservación, borra tu copia.",
       "doc_url": "https://totemstudio.ai/developers/errors#plan_not_entitled"
     },
     "ip_not_allowed": {
@@ -8894,18 +8914,18 @@
       "action": "keep_and_retry",
       "description": "The team is restricted for now: it is disabled (for example, suspended for non-payment), archived or billing-only, or its API access is paused. `GET /v1/teams` still lists it.",
       "x-description-es": "El equipo está restringido por ahora: está desactivado (por ejemplo, suspendido por impago), archivado o es solo de facturación, o tiene pausado el acceso a la API. `GET /v1/teams` lo sigue mostrando.",
-      "fix": "Keep the team's data and cursor, skip it for this run and try again later. The key's other teams are not affected.",
-      "x-fix-es": "Conserva los datos y el cursor del equipo, omítelo en esta ejecución y vuelve a intentarlo más tarde. Los demás equipos de la clave no se ven afectados.",
+      "fix": "Keep the team's data and cursor, skip it for this run and try again later. The key's other teams are not affected. While the team is restricted, the feed delivers nothing for it, removals included: if the restriction lasts longer than your retention policy allows, delete the team's copy.",
+      "x-fix-es": "Conserva los datos y el cursor del equipo, omítelo en esta ejecución y vuelve a intentarlo más tarde. Los demás equipos de la clave no se ven afectados. Mientras el equipo está restringido, el feed no entrega nada de él, tampoco eliminaciones: si la restricción dura más de lo que permite tu política de conservación, borra la copia del equipo.",
       "doc_url": "https://totemstudio.ai/developers/errors#team_state_restricted"
     },
     "sector_restricted": {
       "status": 403,
       "title": "Sector restricted",
       "action": "keep_and_retry",
-      "description": "Reserved: the public Beta exports every business sector, so it does not return this code. Under a future sector policy, it would mean that Totem does not export this team's data through the API because of the team's business sector.",
-      "x-description-es": "Reservado: la Beta pública exporta todos los sectores de actividad, así que no devuelve este código. Con una futura política de sectores, indicaría que Totem no exporta los datos de este equipo por la API debido al sector de actividad del equipo.",
-      "fix": "Keep any data you already have and skip the team: waiting does not change this. Talk to the customer or to Totem if you need its data.",
-      "x-fix-es": "Conserva los datos que ya tengas y omite el equipo: esperar no lo cambia. Si necesitas sus datos, habla con el cliente o con Totem.",
+      "description": "Totem does not export this team's data through the API because the team works in a sensitive sector, such as health care, where its records can reveal health information.",
+      "x-description-es": "Totem no exporta los datos de este equipo por la API porque el equipo trabaja en un sector sensible, como el sanitario, en el que sus registros pueden revelar información de salud.",
+      "fix": "Skip the team: waiting does not change this. The feed delivers nothing for it, removals included, so keep what you already have only as long as your retention policy allows, then delete the team's copy. Talk to the customer or to Totem if you need its data.",
+      "x-fix-es": "Omite el equipo: esperar no lo cambia. El feed no entrega nada de él, tampoco eliminaciones, así que conserva lo que ya tengas solo mientras lo permita tu política de conservación y después borra la copia del equipo. Si necesitas sus datos, habla con el cliente o con Totem.",
       "doc_url": "https://totemstudio.ai/developers/errors#sector_restricted"
     },
     "capability_disabled": {
@@ -8982,10 +9002,10 @@
       "status": 429,
       "title": "Daily quota exceeded",
       "action": "retry_after",
-      "description": "The key has spent its daily quota of items on list endpoints and the changes feed. The quota resets at 00:00 UTC.",
-      "x-description-es": "La clave ha consumido su cuota diaria de elementos en los endpoints de lista y el feed de cambios. La cuota se renueva a las 00:00 UTC.",
-      "fix": "Stop syncing until 00:00 UTC (`Retry-After` counts the seconds) and resume then with the same cursor: nothing is lost. Lookups by id, search and `GET /v1/me` keep working.",
-      "x-fix-es": "Deja de sincronizar hasta las 00:00 UTC (`Retry-After` indica los segundos que faltan) y continúa entonces con el mismo cursor: no se pierde nada. Las consultas por identificador, la búsqueda y `GET /v1/me` siguen funcionando.",
+      "description": "The key has spent its daily quota of items. Every item returned by the changes feed and by every list counts toward it, including `GET /v1/teams`, `GET /v1/members`, `GET /v1/booking_services` and a lead's activities. The quota resets at 00:00 UTC.",
+      "x-description-es": "La clave ha consumido su cuota diaria de elementos. Para la cuota cuenta cada elemento que devuelven el feed de cambios y todas las listas, incluidas `GET /v1/teams`, `GET /v1/members`, `GET /v1/booking_services` y las actividades de un lead. La cuota se renueva a las 00:00 UTC.",
+      "fix": "Stop syncing until 00:00 UTC (`Retry-After` counts the seconds) and resume then with the same cursor: nothing is lost. Requests for one record, such as `GET /v1/leads/{id}`, search and `GET /v1/me` do not count toward the quota and keep working.",
+      "x-fix-es": "Deja de sincronizar hasta las 00:00 UTC (`Retry-After` indica los segundos que faltan) y continúa entonces con el mismo cursor: no se pierde nada. Las peticiones de un solo registro, como `GET /v1/leads/{id}`, la búsqueda y `GET /v1/me` no cuentan para la cuota y siguen funcionando.",
       "doc_url": "https://totemstudio.ai/developers/errors#quota_exceeded"
     },
     "internal_error": {
@@ -9012,8 +9032,8 @@
       "status": 503,
       "title": "Service unavailable",
       "action": "backoff",
-      "description": "The API cannot serve requests right now, for example during maintenance. A `503` from the load balancer may arrive without a problem body; treat it the same way.",
-      "x-description-es": "La API no puede atender peticiones en este momento, por ejemplo durante un mantenimiento. Un `503` del balanceador de carga puede llegar sin cuerpo de error; trátalo igual.",
+      "description": "Reserved: the API itself does not return this code today. A `503` from the load balancer or the hosting platform in front of the API arrives without a problem body; treat it like this code.",
+      "x-description-es": "Reservado: la API no devuelve hoy este código. Un `503` del balanceador de carga o de la plataforma que aloja la API llega sin cuerpo de error; trátalo como este código.",
       "fix": "Retry with exponential backoff; your data and cursors stay valid.",
       "x-fix-es": "Reintenta con una espera exponencial; tus datos y tus cursores siguen siendo válidos.",
       "doc_url": "https://totemstudio.ai/developers/errors#service_unavailable"
