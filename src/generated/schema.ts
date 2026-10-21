@@ -1455,7 +1455,7 @@ export interface OperationContracts {
 /**
  * List notifications
  *
- * Returns a page of business notifications, including their summary and linked records. Pass either `lead` or `status` to filter. Personal notes, technical alerts and notices whose linked source was erased are excluded. API reads never mark notices read. Use the changes feed to receive updates and removals.
+ * Returns a page of business notifications with their summary and linked records; pass either `lead` or `status` to filter. Personal notes, technical alerts and notices whose linked source was erased are excluded. Reading never marks notices read; use the changes feed for updates and removals.
  */
 "notifications.list": { response: Schemas["NotificationList"]; query: {
 /** Items per page, 1–100. Defaults to 25. */

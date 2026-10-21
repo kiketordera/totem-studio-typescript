@@ -2050,8 +2050,8 @@
         ],
         "summary": "List notifications",
         "x-summary-es": "Lista las notificaciones",
-        "description": "Returns a page of business notifications, including their summary and linked records. Pass either `lead` or `status` to filter. Personal notes, technical alerts and notices whose linked source was erased are excluded. API reads never mark notices read. Use the changes feed to receive updates and removals.",
-        "x-description-es": "Devuelve una página de avisos de negocio, con su resumen y registros asociados. Envía `lead` o `status` para filtrar. Se excluyen las notas personales, los avisos técnicos y los avisos cuyo origen vinculado se suprimió. Consultar la API nunca marca avisos como leídos. Usa el feed de cambios para recibir actualizaciones y eliminaciones.",
+        "description": "Returns a page of business notifications with their summary and linked records; pass either `lead` or `status` to filter. Personal notes, technical alerts and notices whose linked source was erased are excluded. Reading never marks notices read; use the changes feed for updates and removals.",
+        "x-description-es": "Devuelve una página de avisos de negocio con su resumen y registros asociados; envía `lead` o `status` para filtrar. Se excluyen las notas personales, los avisos técnicos y los avisos cuyo origen vinculado se suprimió. Consultar nunca marca avisos como leídos; usa el feed de cambios para recibir actualizaciones y eliminaciones.",
         "parameters": [
           {
             "name": "limit",
