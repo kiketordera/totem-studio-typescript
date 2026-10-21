@@ -26,6 +26,16 @@ for (const [label, schema, value, code] of [
   ['wrong type', { type: 'string' }, 3, 'type'],
   ['fractional integer', { type: 'integer' }, 1.5, 'type'],
   ['pattern mismatch', { type: 'string', pattern: '^lead_[A-Za-z0-9]+$' }, 'lead_../sensitive', 'pattern'],
+  ['impossible birthday day', { type: 'string', format: 'date' }, '2001-02-29', 'date'],
+  ['non-leap century date', { type: 'string', format: 'date' }, '1900-02-29', 'date'],
+  ['thirty-first of April', { type: 'string', format: 'date' }, '2000-04-31', 'date'],
+  ['zero calendar month', { type: 'string', format: 'date' }, '2000-00-01', 'date'],
+  ['zero calendar day', { type: 'string', format: 'date' }, '2000-01-00', 'date'],
+  ['non-calendar month', { type: 'string', format: 'date' }, '2000-13-01', 'date'],
+  ['date-time in a date-only field', { type: 'string', format: 'date' }, '2000-02-29T00:00:00Z', 'date'],
+  ['locale-dependent date', { type: 'string', format: 'date' }, '29/02/2000', 'date'],
+  ['unpadded date', { type: 'string', format: 'date' }, '2000-2-9', 'date'],
+  ['date with a trailing line break', { type: 'string', format: 'date' }, '2000-02-29\n', 'date'],
   ['impossible date-time', { type: 'string', format: 'date-time' }, '2026-13-45T00:00:00Z', 'date_time'],
   ['free-text date-time', { type: 'string', format: 'date-time' }, 'sensitive yesterday', 'date_time'],
   ['short string', { type: 'string', minLength: 2 }, 's', 'min_length'],
@@ -73,4 +83,22 @@ test('every published operation example passes closed-world validation', async (
     }
   }
   assert.ok(examples > 0);
+});
+
+for (const [label, value] of [
+  ['ordinary calendar date', '1990-10-21'],
+  ['divisible-by-four leap year', '1988-02-29'],
+  ['divisible-by-400 leap century', '2000-02-29'],
+  ['ISO zero year allowed by the API date schema', '0000-02-29'],
+  ['last supported four-digit year', '9999-12-31'],
+]) {
+  test(`response validator accepts ${label} without timezone conversion`, () => {
+    validateResponse(value, { type: 'string', format: 'date' }, doc);
+  });
+}
+test('date-only fields remain nullable and missing required dates are refused', () => {
+  const schema = { type: 'object', properties: { date_of_birth: { anyOf: [{ type: 'string', format: 'date' }, { type: 'null' }] } }, required: ['date_of_birth'] };
+  validateResponse({ date_of_birth: null }, schema, doc);
+  validateResponse({ date_of_birth: '2000-02-29' }, schema, doc);
+  assert.throws(() => validateResponse({}, schema, doc), error => error.code === 'required' && error.path === '$.date_of_birth');
 });

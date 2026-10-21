@@ -9,6 +9,10 @@ Prepared locally; the GitHub release and npm package have not been published.
 
 ### Added
 
+- `Lead.date_of_birth` is a required nullable calendar string (`YYYY-MM-DD`)
+  on lead lists, detail, search and lead changes. Missing or invalid stored
+  birthdays read as `null`; the public API does not expose birthday writes or
+  greeting settings. The live response validator checks real Gregorian dates.
 - `client.notifications.list(query?)` and `client.notifications.get(id)` for
   team notifications, with `Notification` and `NotificationList` wire types.
   Lists accept pagination and one of `lead` or `status` (`new`, `read`,
@@ -23,7 +27,7 @@ Prepared locally; the GitHub release and npm package have not been published.
 ### Contract
 
 - Generated from the API contract with SHA-256
-  `7361cddfda728713c709b372f9caf39a41251e914e4dc58fa7a8995992402581` (`CONTRACT_SHA256`).
+  `f16836bd8f953de813c8a9a74143477c232f43372ba63d954b0421edb3470a62` (`CONTRACT_SHA256`).
 - `calls.list`, `conversations.list` and `bookings.list` accept an optional
   `lead` (`lead_…`) in their query: one lead's calls, conversations or
   bookings.

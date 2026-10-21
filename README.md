@@ -124,6 +124,11 @@ field's documentation. Every schema has a named type: `Lead`, `LeadDetail`,
 The SDK adds `Stage` (one board stage), `FeedUpsert`, `FeedRemoval`,
 `FeedObjectOf<'lead'>` (the record a feed kind carries) and `isFeedRemoval`.
 
+`Lead.date_of_birth` is a `YYYY-MM-DD` calendar string, or `null` when no valid
+birthday is stored. It is included in lead lists, detail, search and lead
+changes. Keep it as a date-only string; converting it to a timestamp can shift
+the birthday across time zones. The public API and SDK remain read-only.
+
 **Enums can grow.** Totem can add a value to any response field with a fixed
 set of values, such as `Lead['status']` or `Call['outcome']`, in any version.
 Their types are open (`'new' | 'contacted' | … | (string & {})`): your editor

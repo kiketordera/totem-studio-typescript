@@ -7,7 +7,7 @@
  */
 import { isDeepStrictEqual } from 'node:util';
 
-export const VALIDATION_CODES = new Set(['schema_false', 'schema_invalid', 'schema_unsupported', 'schema_reference', 'anyOf', 'oneOf', 'allOf', 'const', 'enum', 'type', 'pattern', 'min_length', 'max_length', 'date_time', 'minimum', 'maximum', 'min_items', 'max_items', 'required', 'additional_property', 'undeclared_field']);
+export const VALIDATION_CODES = new Set(['schema_false', 'schema_invalid', 'schema_unsupported', 'schema_reference', 'anyOf', 'oneOf', 'allOf', 'const', 'enum', 'type', 'pattern', 'min_length', 'max_length', 'date', 'date_time', 'minimum', 'maximum', 'min_items', 'max_items', 'required', 'additional_property', 'undeclared_field']);
 export class ResponseValidationError extends Error {
   constructor(code, path) {
     super('API response did not match its declared schema');
@@ -19,6 +19,16 @@ export class ResponseValidationError extends Error {
 const annotations = new Set(['description', 'examples', 'example', 'format', 'default', 'deprecated', 'title']);
 const supported = new Set(['$ref', 'type', 'properties', 'required', 'additionalProperties', 'items', 'anyOf', 'oneOf', 'allOf', 'enum', 'const', 'pattern', 'minimum', 'maximum', 'minLength', 'maxLength', 'minItems', 'maxItems']);
 const fail = (code, path) => { throw new ResponseValidationError(code, path); };
+
+/** Date-only values use Gregorian calendar arithmetic, never a host timezone. */
+function isCalendarDate(value) {
+  if (value.length !== 10 || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const year = Number(value.slice(0, 4)), month = Number(value.slice(5, 7)), day = Number(value.slice(8, 10));
+  if (month < 1 || month > 12 || day < 1) return false;
+  const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const days = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  return day <= days[month - 1];
+}
 
 export function validateResponse(value, schema, document, { closed = false } = {}) {
   check(value, schema, '$');
@@ -59,6 +69,7 @@ export function validateResponse(value, schema, document, { closed = false } = {
       const length = [...value].length;
       if (schema.minLength !== undefined && length < schema.minLength) fail('min_length', path);
       if (schema.maxLength !== undefined && length > schema.maxLength) fail('max_length', path);
+      if (schema.format === 'date' && !isCalendarDate(value)) fail('date', path);
       if (schema.format === 'date-time' && (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(value) || !Number.isFinite(Date.parse(value)))) fail('date_time', path);
     }
     if (typeof value === 'number') {

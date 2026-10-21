@@ -760,6 +760,7 @@
                       "record_kind": "lead",
                       "name": "Alex",
                       "surname": "Rivera",
+                      "date_of_birth": "1990-04-23",
                       "email": "alex.rivera@example.com",
                       "company": "Example Dental",
                       "phone": "+12025550123",
@@ -888,6 +889,7 @@
                   "record_kind": "lead",
                   "name": "Alex",
                   "surname": "Rivera",
+                  "date_of_birth": "1990-04-23",
                   "email": "alex.rivera@example.com",
                   "company": "Example Dental",
                   "phone": "+12025550123",
@@ -1202,6 +1204,7 @@
                       "record_kind": "lead",
                       "name": "Alex",
                       "surname": "Rivera",
+                      "date_of_birth": "1990-04-23",
                       "email": "alex.rivera@example.com",
                       "company": "Example Dental",
                       "phone": "+12025550123",
@@ -2335,6 +2338,7 @@
                         "record_kind": "lead",
                         "name": "Alex",
                         "surname": "Rivera",
+                        "date_of_birth": "1990-04-23",
                         "email": "alex.rivera@example.com",
                         "company": "Example Dental",
                         "phone": "+12025550123",
@@ -4933,6 +4937,7 @@
               "record_kind": "lead",
               "name": "Alex",
               "surname": "Rivera",
+              "date_of_birth": "1990-04-23",
               "email": "alex.rivera@example.com",
               "company": "Example Dental",
               "phone": "+12025550123",
@@ -5032,6 +5037,7 @@
                   "record_kind": "lead",
                   "name": "Alex",
                   "surname": "Rivera",
+                  "date_of_birth": "1990-04-23",
                   "email": "alex.rivera@example.com",
                   "company": "Example Dental",
                   "phone": "+12025550123",
@@ -5225,6 +5231,20 @@
               "string",
               "null"
             ]
+          },
+          "date_of_birth": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Civil date of birth in YYYY-MM-DD, without a time or timezone; null when missing, cleared or invalid.",
+            "x-description-es": "Fecha de nacimiento civil en YYYY-MM-DD, sin hora ni zona horaria; null si falta, se ha borrado o no es válida."
           },
           "email": {
             "description": "Email address as stored, or null.",
@@ -5705,6 +5725,7 @@
           "record_kind",
           "name",
           "surname",
+          "date_of_birth",
           "email",
           "company",
           "phone",
@@ -5746,6 +5767,7 @@
             "record_kind": "lead",
             "name": "Alex",
             "surname": "Rivera",
+            "date_of_birth": "1990-04-23",
             "email": "alex.rivera@example.com",
             "company": "Example Dental",
             "phone": "+12025550123",
@@ -7668,6 +7690,20 @@
               "null"
             ]
           },
+          "date_of_birth": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Civil date of birth in YYYY-MM-DD, without a time or timezone; null when missing, cleared or invalid.",
+            "x-description-es": "Fecha de nacimiento civil en YYYY-MM-DD, sin hora ni zona horaria; null si falta, se ha borrado o no es válida."
+          },
           "email": {
             "description": "Email address as stored, or null.",
             "x-description-es": "Email tal como está guardado, o null.",
@@ -8171,6 +8207,7 @@
           "record_kind",
           "name",
           "surname",
+          "date_of_birth",
           "email",
           "company",
           "phone",
@@ -8214,6 +8251,7 @@
             "record_kind": "lead",
             "name": "Alex",
             "surname": "Rivera",
+            "date_of_birth": "1990-04-23",
             "email": "alex.rivera@example.com",
             "company": "Example Dental",
             "phone": "+12025550123",
@@ -8433,6 +8471,7 @@
                 "record_kind": "lead",
                 "name": "Alex",
                 "surname": "Rivera",
+                "date_of_birth": "1990-04-23",
                 "email": "alex.rivera@example.com",
                 "company": "Example Dental",
                 "phone": "+12025550123",

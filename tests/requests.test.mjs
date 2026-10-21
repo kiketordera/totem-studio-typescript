@@ -200,3 +200,28 @@ test('JavaScript callers cannot attach a body to a read route', async () => {
   await assert.rejects(client.request('me.get', { body: { unexpected: true } }), /does not accept a request body/);
   assert.equal(count, 0);
 });
+
+/** Lead birthday strings pass through HTTP list/detail/search/feed unchanged; no Date conversion. */
+const birthdayDocument = JSON.parse(await readFile(new URL('../openapi.json', import.meta.url), 'utf8'));
+const operationExample = (path, method = 'get') => structuredClone(birthdayDocument.paths[path][method].responses['200'].content['application/json'].example);
+for (const [label, getBirthday] of [
+  ['list', async client => (await client.leads.list()).data[0].date_of_birth],
+  ['detail', async client => (await client.leads.get('lead_BIRTHDAY')).date_of_birth],
+  ['search', async client => (await client.leads.search({ email: 'birthday@example.invalid' })).data[0].date_of_birth],
+  ['changes feed', async client => (await client.sync.changes()).data[0].object.date_of_birth],
+]) {
+  for (const dateOfBirth of ['2000-02-29', null]) {
+    test(`lead ${label} preserves ${dateOfBirth === null ? 'null' : 'the calendar birthday'} over HTTP`, async context => {
+      const lead = { ...operationExample('/leads').data[0], id: 'lead_BIRTHDAY', date_of_birth: dateOfBirth };
+      const feed = operationExample('/sync/changes');
+      const item = feed.data.find(item => item.kind === 'lead' && item.object);
+      assert.ok(item, 'Published feed example includes a lead upsert');
+      const baseUrl = await serve(context, request => ({ body: request.url === '/v1/leads/lead_BIRTHDAY'
+        ? { ...operationExample('/leads/{id}'), ...lead }
+        : request.url === '/v1/sync/changes' ? { ...feed, data: [{ ...item, id: lead.id, object: lead }] }
+          : { object: 'list', data: [lead], has_more: false, next_cursor: null } }));
+      const client = new TotemClient({ apiKey: KEY, baseUrl, team: 'team_SDK', maxRetries: 0 });
+      assert.equal(await getBirthday(client), dateOfBirth);
+    });
+  }
+}

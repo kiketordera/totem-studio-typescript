@@ -20,7 +20,19 @@ declare const maybe: string | undefined
 type IsAny<T> = 0 extends 1 & T ? true : false
 
 const version: number = lead.version
-void version
+const birthday: string | null = lead.date_of_birth
+const birthdayInFeed: string | null = ({} as FeedObjectOf<'lead'>).date_of_birth
+const birthdayInDetail: string | null = ({} as ResponseOf<'leads.get'>).date_of_birth
+const knownBirthday: Lead['date_of_birth'] = '2000-02-29'
+const noBirthday: Lead['date_of_birth'] = null
+// @ts-expect-error birthdays are required nullable calendar strings
+const omittedBirthday: Lead['date_of_birth'] = undefined
+// @ts-expect-error birthdays are not timestamp numbers
+const timestampBirthday: Lead['date_of_birth'] = 951782400000
+// @ts-expect-error birthdays are not JavaScript Date objects
+const dateObjectBirthday: Lead['date_of_birth'] = new Date('2000-02-29')
+void version; void birthday; void birthdayInFeed; void birthdayInDetail; void knownBirthday; void noBirthday
+void omittedBirthday; void timestampBirthday; void dateObjectBirthday
 client.leads.search({ email: 'sdk@example.invalid' })
 client.request('leads.get', { path: { id: 'lead_ABC' } })
 client.request('leads.list', { query: { limit: 1, status: 'new' } })

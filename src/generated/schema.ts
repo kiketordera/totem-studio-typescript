@@ -473,6 +473,8 @@ export interface Schemas {
 "name": (string | null);
 /** Surname, or null. */
 "surname": (string | null);
+/** Civil date of birth in YYYY-MM-DD, without a time or timezone; null when missing, cleared or invalid. */
+"date_of_birth": (string | null);
 /** Email address as stored, or null. */
 "email": (string | null);
 /** Company, or null. */
@@ -950,6 +952,8 @@ export interface Schemas {
 "name": (string | null);
 /** Surname, or null. */
 "surname": (string | null);
+/** Civil date of birth in YYYY-MM-DD, without a time or timezone; null when missing, cleared or invalid. */
+"date_of_birth": (string | null);
 /** Email address as stored, or null. */
 "email": (string | null);
 /** Company, or null. */
