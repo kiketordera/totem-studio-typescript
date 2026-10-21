@@ -9,9 +9,15 @@ interface SyncStore {
   loadCursor(team: string): Promise<string | undefined>
   /** The version you hold for a record, including the version of a deletion you applied. */
   heldVersion(team: string, kind: FeedItem['kind'], id: string): Promise<number | undefined>
-  /** In one transaction: apply the changes, then save the cursor. */
+  /**
+   * In one transaction: apply the changes, then save the cursor. Removing a
+   * lead, call or conversation also deletes linked notifications, including
+   * their summaries. Keep a removal fence for those source ids and ignore
+   * later notification upserts that reference them, even if the notification
+   * has a newer version. Keep the notification version so replays stay harmless.
+   */
   commit(team: string, changes: Change[], nextCursor: string): Promise<void>
-  /** The documented full resync, which your store implements: forget the team's versions and cursor, re-read the feed without a cursor marking every record, then delete what was not marked. */
+  /** The documented full resync, which your store implements: forget the team's versions, source-removal fences and cursor, re-read the feed without a cursor marking every record, then delete what was not marked. */
   resync(team: string): Promise<void>
   /** Delete the team's copy and its cursor. */
   dropTeam(team: string): Promise<void>

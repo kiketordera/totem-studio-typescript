@@ -4,20 +4,26 @@ import assert from 'node:assert/strict';
 import { TotemClient, TotemApiError, TotemProtocolError, isFeedRemoval } from '../dist/index.js';
 import { KEY, problem, serve } from './helpers.mjs';
 
-test('items traverse pages with filters and team preserved', async context => {
-  const requests = [];
-  const baseUrl = await serve(context, request => {
-    requests.push(request);
-    return { body: requests.length === 1 ? { object: 'list', data: [{ id: 'lead_one' }], has_more: true, next_cursor: 'opaque+/=two' } : { object: 'list', data: [{ id: 'lead_two' }], has_more: false, next_cursor: null } };
+for (const [label, operation, path, filter, queryString, ids] of [
+  ['lead status', 'leads.list', 'leads', { status: 'new' }, 'status=new', ['lead_one', 'lead_two']],
+  ['notification status', 'notifications.list', 'notifications', { status: 'new' }, 'status=new', ['ntf_one', 'ntf_two']],
+  ['notification lead', 'notifications.list', 'notifications', { lead: 'lead_CRM' }, 'lead=lead_CRM', ['ntf_one', 'ntf_two']],
+]) {
+  test(`items traverse pages with filters and team preserved: ${label}`, async context => {
+    const requests = [];
+    const baseUrl = await serve(context, request => {
+      requests.push(request);
+      return { body: requests.length === 1 ? { object: 'list', data: [{ id: ids[0] }], has_more: true, next_cursor: 'opaque+/=two' } : { object: 'list', data: [{ id: ids[1] }], has_more: false, next_cursor: null } };
+    });
+    const client = new TotemClient({ apiKey: KEY, baseUrl, team: 'team_A' });
+    const actualIds = [];
+    for await (const item of client.items(operation, { query: { limit: 1, ...filter } })) actualIds.push(item.id);
+    assert.deepEqual(actualIds, ids);
+    assert.equal(requests[0].url, `/v1/${path}?limit=1&${queryString}`);
+    assert.equal(requests[1].url, `/v1/${path}?limit=1&${queryString}&cursor=opaque%2B%2F%3Dtwo`);
+    assert.equal(requests[1].headers['totem-team'], 'team_A');
   });
-  const client = new TotemClient({ apiKey: KEY, baseUrl, team: 'team_A' });
-  const ids = [];
-  for await (const lead of client.items('leads.list', { query: { limit: 1, status: 'new' } })) ids.push(lead.id);
-  assert.deepEqual(ids, ['lead_one', 'lead_two']);
-  assert.equal(requests[0].url, '/v1/leads?limit=1&status=new');
-  assert.equal(requests[1].url, '/v1/leads?limit=1&status=new&cursor=opaque%2B%2F%3Dtwo');
-  assert.equal(requests[1].headers['totem-team'], 'team_A');
-});
+}
 test('a per-request team is kept on every page, over the client default', async context => {
   const requests = [];
   const baseUrl = await serve(context, request => {
@@ -84,6 +90,8 @@ for (const [label, item, removal] of [
   ['an erasure', { kind: 'call', id: 'call_1', version: 5, removed: { reason: 'erased' } }, true],
   ['an upsert', { kind: 'lead', id: 'lead_1', version: 3, object: { id: 'lead_1' } }, false],
   ['an upsert with a null removed field', { kind: 'lead', id: 'lead_1', version: 3, object: { id: 'lead_1' }, removed: null }, false],
+  ['a notification upsert', { kind: 'notification', id: 'ntf_1', version: 1, object: { id: 'ntf_1' } }, false],
+  ['a notification removal', { kind: 'notification', id: 'ntf_1', version: 2, removed: { reason: 'deleted' } }, true],
 ]) {
   test(`isFeedRemoval: ${label}`, () => assert.equal(isFeedRemoval(item), removal));
 }

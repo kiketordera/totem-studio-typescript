@@ -1,8 +1,8 @@
 /** Generated from openapi.json and package.json. Do not edit; run npm run generate. */
 import type { ErrorAction, TotemErrorCode } from './schema.js'
 
-export const CONTRACT_SHA256 = 'c29a97ac25b42133dce168471220f8579aa4016ef4942d0b204809cd9ac0b9c4'
-export const SDK_VERSION = '0.1.0-beta.2'
+export const CONTRACT_SHA256 = '14a54a041bf8e6e0aef78e689b2c06082315ca688da64b97ac98b5bfb5ba2ce4'
+export const SDK_VERSION = '0.2.0-beta.1'
 export const DEFAULT_BASE_URL = "https://api.totemstudio.ai/v1"
 export const operationDefinitions = {
   "me.get": {
@@ -152,6 +152,27 @@ export const operationDefinitions = {
   "bookings.get": {
     "method": "GET",
     "path": "/bookings/{id}",
+    "authenticated": true,
+    "body": false,
+    "team": false,
+    "query": []
+  },
+  "notifications.list": {
+    "method": "GET",
+    "path": "/notifications",
+    "authenticated": true,
+    "body": false,
+    "team": true,
+    "query": [
+      "limit",
+      "cursor",
+      "lead",
+      "status"
+    ]
+  },
+  "notifications.get": {
+    "method": "GET",
+    "path": "/notifications/{id}",
     "authenticated": true,
     "body": false,
     "team": false,

@@ -419,7 +419,16 @@ export interface Schemas {
 "object": Schemas["Board"]
 } | {
 /** The kind of the record, such as `lead` or `call`. */
-"kind": ("lead" | "lead_attribution" | "lead_response" | "activity" | "call" | "conversation" | "booking" | "board");
+"kind": "notification";
+/** Public id of the record; the facets `lead_attribution` and `lead_response` use their lead's id. */
+"id": string;
+/** The record's version. Apply the item only when it is greater than the version you hold. */
+"version": number;
+/** The record as it is now. */
+"object": Schemas["Notification"]
+} | {
+/** The kind of the record, such as `lead` or `call`. */
+"kind": ("lead" | "lead_attribution" | "lead_response" | "activity" | "call" | "conversation" | "booking" | "board" | "notification");
 /** Public id of the removed record. */
 "id": string;
 /** The record's version. Apply the item only when it is greater than the version you hold. */
@@ -1118,6 +1127,48 @@ export interface Schemas {
 /** Opaque cursor for the next page, or null on the last page. Never parse it. */
 "next_cursor": (string | null)
 };
+/** A business notification, including its summary and linked lead, call or conversation. Personal notes and technical alerts are excluded. */
+"Notification": {
+/** Public id of the record. */
+"id": string;
+/** Always `notification`. */
+"object": "notification";
+/** `true` for real data; `false` in example data. */
+"livemode": boolean;
+/** The team this record belongs to. */
+"team": string;
+/** The associated lead, or null when none is linked or its public id is not captured yet. */
+"lead": (string | null);
+/** The associated call, or null. */
+"call": (string | null);
+/** The associated conversation, or null. */
+"conversation": (string | null);
+/** The stored business notification text, trimmed and limited to 10,000 characters; null when blank. It can contain personal data and a source summary already copied into the notice. The API does not independently read or export message content, transcripts, call summaries, lead notes or technical errors. */
+"summary": (string | null);
+/** `new`, `read` or `archived`; null for an unknown stored status. Reading the API never marks a notice read. */
+"status": ((("new" | "read" | "archived") | (string & {})) | null);
+/** The business source: call, chat, reminder, task or manual (also used for an absent source). Unknown and technical sources are excluded. */
+"source": (("call" | "chat" | "reminder" | "task" | "manual") | (string & {}));
+/** The recorded handoff reason, or null. No reason is inferred from the summary. */
+"handoff_reason": ((("missed_team_appointment") | (string & {})) | null);
+/** When the notification was created in Totem (UTC), or null. */
+"created_at": (string | null);
+/** Increases every time one of the record's exported fields changes. Apply a change only when its version is greater than the one you hold. */
+"version": number;
+/** When Totem recorded this version (UTC). It is not the time the business event happened. */
+"updated_at": string
+};
+/** A page of Notification objects, in a stable order that carries no meaning. */
+"NotificationList": {
+/** Always `list`. */
+"object": "list";
+/** The items of this page. */
+"data": Array<Schemas["Notification"]>;
+/** `true` when another page follows: fetch it with `next_cursor`, even if this page holds fewer items than `limit`. */
+"has_more": boolean;
+/** Opaque cursor for the next page, or null on the last page. Never parse it. */
+"next_cursor": (string | null)
+};
 /** An error, as `application/problem+json` (RFC 9457). */
 "Problem": {
 /** A link to this error's entry in the docs; equal to `doc_url`. */
@@ -1402,6 +1453,34 @@ export interface OperationContracts {
 "id": string
 }; body: never };
 /**
+ * List notifications
+ *
+ * Returns a page of business notifications, including their summary and linked records. Pass either `lead` or `status` to filter. Personal notes, technical alerts and notices whose linked source was erased are excluded. API reads never mark notices read. Use the changes feed to receive updates and removals.
+ */
+"notifications.list": { response: Schemas["NotificationList"]; query: {
+/** Items per page, 1–100. Defaults to 25. */
+"limit"?: number | null | undefined;
+/** The `next_cursor` of the previous page. Omit it for the first page. */
+"cursor"?: string | null | undefined;
+/** Only the notifications linked to this lead: every item's `lead` is this id. A lead of another team, or one that does not exist, matches nothing. */
+"lead"?: string | null | undefined;
+/** Only notices with this status. At most one of `lead` and `status`. */
+"status"?: ("new" | "read" | "archived") | null | undefined
+}; path: {
+
+}; body: never };
+/**
+ * Get a notification
+ *
+ * Returns one business notification by its opaque id, including its summary. A foreign, personal, excluded or removed notice answers `404 resource_missing`. This endpoint never changes its status.
+ */
+"notifications.get": { response: Schemas["Notification"]; query: {
+
+}; path: {
+/** The notification's public id. */
+"id": string
+}; body: never };
+/**
  * Read the changes feed of one team
  *
  * Returns the next page of one team's changes, in the order Totem recorded them: each item is a record's current state or its removal. Without `cursor` it starts an initial sync of every record; after applying each page, store its `next_cursor` and send it on the next call, even when the page is empty. A cursor expires 30 days after the point in the feed it reached or, while an initial sync is still running, 30 days after that sync started.
@@ -1471,6 +1550,10 @@ export type Me = Schemas["Me"]
 export type Member = Schemas["Member"]
 /** Every Member object, in one response: this list is never paged. */
 export type MemberList = Schemas["MemberList"]
+/** A business notification, including its summary and linked lead, call or conversation. Personal notes and technical alerts are excluded. */
+export type Notification = Schemas["Notification"]
+/** A page of Notification objects, in a stable order that carries no meaning. */
+export type NotificationList = Schemas["NotificationList"]
 /** An error, as `application/problem+json` (RFC 9457). */
 export type Problem = Schemas["Problem"]
 /** A team this key reads, with its time zone and default country. */

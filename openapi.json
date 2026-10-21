@@ -3,8 +3,8 @@
   "info": {
     "title": "Totem API",
     "version": "1.0a",
-    "summary": "Read-only export of a Totem Studio team: leads, calls, conversations, bookings and a changes feed.",
-    "x-summary-es": "Exportación de solo lectura de un equipo de Totem Studio: leads, llamadas, conversaciones, citas y un feed de cambios.",
+    "summary": "Read-only export of a Totem Studio team: leads, calls, conversations, bookings, business notification summaries and a changes feed.",
+    "x-summary-es": "Exportación de solo lectura de un equipo de Totem Studio: leads, llamadas, conversaciones, citas, resúmenes de avisos de negocio y un feed de cambios.",
     "x-totem-stability": "beta",
     "x-totem-pending-components": []
   },
@@ -51,6 +51,11 @@
       "name": "sync",
       "description": "The changes feed: an initial sync of every record, then each change as Totem records it.",
       "x-description-es": "El feed de cambios: una carga inicial de todos los registros y, después, cada cambio según Totem lo registra."
+    },
+    {
+      "name": "notifications",
+      "description": "Business notifications with their summary, status and linked records. Excludes personal notes and technical alerts.",
+      "x-description-es": "Avisos de negocio con su resumen, estado y registros asociados. Excluye notas personales y avisos técnicos."
     }
   ],
   "paths": {
@@ -2037,6 +2042,230 @@
         "x-totem-stability": "beta"
       }
     },
+    "/notifications": {
+      "get": {
+        "operationId": "notifications.list",
+        "tags": [
+          "notifications"
+        ],
+        "summary": "List notifications",
+        "x-summary-es": "Lista las notificaciones",
+        "description": "Returns a page of business notifications, including their summary and linked records. Pass either `lead` or `status` to filter. Personal notes, technical alerts and notices whose linked source was erased are excluded. API reads never mark notices read. Use the changes feed to receive updates and removals.",
+        "x-description-es": "Devuelve una página de avisos de negocio, con su resumen y registros asociados. Envía `lead` o `status` para filtrar. Se excluyen las notas personales, los avisos técnicos y los avisos cuyo origen vinculado se suprimió. Consultar la API nunca marca avisos como leídos. Usa el feed de cambios para recibir actualizaciones y eliminaciones.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Items per page, 1–100. Defaults to 25.",
+            "x-description-es": "Elementos por página, de 1 a 100. Por defecto, 25.",
+            "schema": {
+              "default": 25,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "description": "The `next_cursor` of the previous page. Omit it for the first page.",
+            "x-description-es": "El `next_cursor` de la página anterior. Omítelo en la primera página.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          {
+            "name": "lead",
+            "in": "query",
+            "required": false,
+            "description": "Only the notifications linked to this lead: every item's `lead` is this id. A lead of another team, or one that does not exist, matches nothing.",
+            "x-description-es": "Solo las notificaciones vinculadas a este lead: el `lead` de cada elemento es este identificador. Un lead de otro equipo, o que no existe, no coincide con nada.",
+            "schema": {
+              "type": "string",
+              "pattern": "^lead_[0-9A-Za-z]+$"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "Only notices with this status. At most one of `lead` and `status`.",
+            "x-description-es": "Solo avisos con este estado. Como máximo uno de `lead` y `status`.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "new",
+                "read",
+                "archived"
+              ]
+            }
+          },
+          {
+            "$ref": "#/components/parameters/TotemTeam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List notifications",
+            "x-description-es": "Lista las notificaciones",
+            "headers": {
+              "Totem-Request-Id": {
+                "$ref": "#/components/headers/TotemRequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationList"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "ntf_m3mtwDFyaDSKmhf9rg7Ps201S8Jc4",
+                      "object": "notification",
+                      "livemode": false,
+                      "team": "team_r9uYrIW4gSFJJ6hZQ9ip1UIpPaAD1CF7NR",
+                      "lead": "lead_r72EfbRNUzuqORFJR0O8HxAwEXd93jGUTYMaMMXKSF0QbLS8CiUKJpEP34LFQG",
+                      "call": null,
+                      "conversation": "conv_m3GhGjRHmFbww1g10oqOp7j3gWqPJ",
+                      "summary": "Alex requests a call from a person about the appointment.",
+                      "status": "new",
+                      "source": "chat",
+                      "handoff_reason": null,
+                      "created_at": "2026-10-01T08:58:00.000Z",
+                      "version": 1,
+                      "updated_at": "2026-10-01T08:58:30.000Z"
+                    }
+                  ],
+                  "has_more": false,
+                  "next_cursor": null
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-totem-errors": [
+          "invalid_request",
+          "secret_key_in_browser",
+          "invalid_credentials",
+          "key_expired",
+          "insufficient_scope",
+          "plan_not_entitled",
+          "ip_not_allowed",
+          "capability_disabled",
+          "rate_limited",
+          "internal_error",
+          "api_disabled",
+          "service_unavailable",
+          "team_required",
+          "team_not_accessible",
+          "team_state_restricted",
+          "sector_restricted",
+          "capture_not_ready",
+          "quota_exceeded"
+        ],
+        "x-totem-scopes": [
+          "crm:read"
+        ],
+        "x-totem-rate-class": "sync",
+        "x-totem-tenant-binding": "team_header",
+        "x-totem-stability": "beta"
+      }
+    },
+    "/notifications/{id}": {
+      "get": {
+        "operationId": "notifications.get",
+        "tags": [
+          "notifications"
+        ],
+        "summary": "Get a notification",
+        "x-summary-es": "Obtén una notificación",
+        "description": "Returns one business notification by its opaque id, including its summary. A foreign, personal, excluded or removed notice answers `404 resource_missing`. This endpoint never changes its status.",
+        "x-description-es": "Devuelve un aviso de negocio por su identificador opaco, con su resumen. Un aviso ajeno, personal, excluido o eliminado responde `404 resource_missing`. Este endpoint nunca modifica su estado.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The notification's public id.",
+            "x-description-es": "El identificador público del aviso.",
+            "schema": {
+              "type": "string",
+              "pattern": "^ntf_[0-9A-Za-z]+$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get a notification",
+            "x-description-es": "Obtén una notificación",
+            "headers": {
+              "Totem-Request-Id": {
+                "$ref": "#/components/headers/TotemRequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Notification"
+                },
+                "example": {
+                  "id": "ntf_m3mtwDFyaDSKmhf9rg7Ps201S8Jc4",
+                  "object": "notification",
+                  "livemode": false,
+                  "team": "team_r9uYrIW4gSFJJ6hZQ9ip1UIpPaAD1CF7NR",
+                  "lead": "lead_r72EfbRNUzuqORFJR0O8HxAwEXd93jGUTYMaMMXKSF0QbLS8CiUKJpEP34LFQG",
+                  "call": null,
+                  "conversation": "conv_m3GhGjRHmFbww1g10oqOp7j3gWqPJ",
+                  "summary": "Alex requests a call from a person about the appointment.",
+                  "status": "new",
+                  "source": "chat",
+                  "handoff_reason": null,
+                  "created_at": "2026-10-01T08:58:00.000Z",
+                  "version": 1,
+                  "updated_at": "2026-10-01T08:58:30.000Z"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "x-totem-errors": [
+          "invalid_request",
+          "secret_key_in_browser",
+          "invalid_credentials",
+          "key_expired",
+          "insufficient_scope",
+          "plan_not_entitled",
+          "ip_not_allowed",
+          "capability_disabled",
+          "rate_limited",
+          "internal_error",
+          "api_disabled",
+          "service_unavailable",
+          "resource_missing",
+          "team_state_restricted",
+          "sector_restricted",
+          "capture_not_ready"
+        ],
+        "x-totem-scopes": [
+          "crm:read"
+        ],
+        "x-totem-rate-class": "read",
+        "x-totem-tenant-binding": "resource_id",
+        "x-totem-stability": "beta"
+      }
+    },
     "/sync/changes": {
       "get": {
         "operationId": "sync.changes",
@@ -2157,6 +2386,35 @@
                       "version": 5,
                       "removed": {
                         "reason": "deleted"
+                      }
+                    },
+                    {
+                      "kind": "notification",
+                      "id": "ntf_m3mtwDFyaDSKmhf9rg7Ps201S8Jc4",
+                      "version": 1,
+                      "object": {
+                        "id": "ntf_m3mtwDFyaDSKmhf9rg7Ps201S8Jc4",
+                        "object": "notification",
+                        "livemode": false,
+                        "team": "team_r9uYrIW4gSFJJ6hZQ9ip1UIpPaAD1CF7NR",
+                        "lead": "lead_r72EfbRNUzuqORFJR0O8HxAwEXd93jGUTYMaMMXKSF0QbLS8CiUKJpEP34LFQG",
+                        "call": null,
+                        "conversation": "conv_m3GhGjRHmFbww1g10oqOp7j3gWqPJ",
+                        "summary": "Alex requests a call from a person about the appointment.",
+                        "status": "new",
+                        "source": "chat",
+                        "handoff_reason": null,
+                        "created_at": "2026-10-01T08:58:00.000Z",
+                        "version": 1,
+                        "updated_at": "2026-10-01T08:58:30.000Z"
+                      }
+                    },
+                    {
+                      "kind": "notification",
+                      "id": "ntf_m3onOBMbZVZ3x60zRbxTZy11ThyqU",
+                      "version": 3,
+                      "removed": {
+                        "reason": "erased"
                       }
                     },
                     {
@@ -4572,6 +4830,40 @@
             "properties": {
               "kind": {
                 "type": "string",
+                "const": "notification",
+                "description": "The kind of the record, such as `lead` or `call`.",
+                "x-description-es": "El tipo del registro, como `lead` o `call`."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^ntf_[0-9A-Za-z]+$",
+                "description": "Public id of the record; the facets `lead_attribution` and `lead_response` use their lead's id.",
+                "x-description-es": "Identificador público del registro; las facetas `lead_attribution` y `lead_response` usan el de su lead."
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "The record's version. Apply the item only when it is greater than the version you hold.",
+                "x-description-es": "La versión del registro. Aplica el elemento solo si es mayor que la versión que guardas."
+              },
+              "object": {
+                "description": "The record as it is now.",
+                "x-description-es": "El registro tal como está ahora.",
+                "$ref": "#/components/schemas/Notification"
+              }
+            },
+            "required": [
+              "kind",
+              "id",
+              "version",
+              "object"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
                 "enum": [
                   "lead",
                   "lead_attribution",
@@ -4580,14 +4872,15 @@
                   "call",
                   "conversation",
                   "booking",
-                  "board"
+                  "board",
+                  "notification"
                 ],
                 "description": "The kind of the record, such as `lead` or `call`.",
                 "x-description-es": "El tipo del registro, como `lead` o `call`."
               },
               "id": {
                 "type": "string",
-                "pattern": "^(lead|act|call|conv|bkg|brd)_[0-9A-Za-z]+$",
+                "pattern": "^(lead|act|call|conv|bkg|brd|ntf)_[0-9A-Za-z]+$",
                 "description": "Public id of the removed record.",
                 "x-description-es": "Identificador público del registro eliminado."
               },
@@ -4790,6 +5083,35 @@
                 "version": 5,
                 "removed": {
                   "reason": "deleted"
+                }
+              },
+              {
+                "kind": "notification",
+                "id": "ntf_m3mtwDFyaDSKmhf9rg7Ps201S8Jc4",
+                "version": 1,
+                "object": {
+                  "id": "ntf_m3mtwDFyaDSKmhf9rg7Ps201S8Jc4",
+                  "object": "notification",
+                  "livemode": false,
+                  "team": "team_r9uYrIW4gSFJJ6hZQ9ip1UIpPaAD1CF7NR",
+                  "lead": "lead_r72EfbRNUzuqORFJR0O8HxAwEXd93jGUTYMaMMXKSF0QbLS8CiUKJpEP34LFQG",
+                  "call": null,
+                  "conversation": "conv_m3GhGjRHmFbww1g10oqOp7j3gWqPJ",
+                  "summary": "Alex requests a call from a person about the appointment.",
+                  "status": "new",
+                  "source": "chat",
+                  "handoff_reason": null,
+                  "created_at": "2026-10-01T08:58:00.000Z",
+                  "version": 1,
+                  "updated_at": "2026-10-01T08:58:30.000Z"
+                }
+              },
+              {
+                "kind": "notification",
+                "id": "ntf_m3onOBMbZVZ3x60zRbxTZy11ThyqU",
+                "version": 3,
+                "removed": {
+                  "reason": "erased"
                 }
               },
               {
@@ -8559,6 +8881,256 @@
                 "livemode": false,
                 "team": "team_r9uYrIW4gSFJJ6hZQ9ip1UIpPaAD1CF7NR",
                 "display_name": "Sam Lee"
+              }
+            ],
+            "has_more": false,
+            "next_cursor": null
+          }
+        ]
+      },
+      "Notification": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^ntf_[0-9A-Za-z]+$",
+            "description": "Public id of the record.",
+            "x-description-es": "Identificador público del registro."
+          },
+          "object": {
+            "type": "string",
+            "const": "notification",
+            "description": "Always `notification`.",
+            "x-description-es": "Siempre `notification`."
+          },
+          "livemode": {
+            "type": "boolean",
+            "description": "`true` for real data; `false` in example data.",
+            "x-description-es": "`true` en datos reales; `false` en los datos de ejemplo."
+          },
+          "team": {
+            "type": "string",
+            "pattern": "^team_[0-9A-Za-z]+$",
+            "description": "The team this record belongs to.",
+            "x-description-es": "El equipo al que pertenece este registro."
+          },
+          "lead": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^lead_[0-9A-Za-z]+$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The associated lead, or null when none is linked or its public id is not captured yet.",
+            "x-description-es": "El lead asociado, o null si no está vinculado o su identificador público aún no se ha registrado."
+          },
+          "call": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^call_[0-9A-Za-z]+$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The associated call, or null.",
+            "x-description-es": "La llamada asociada, o null."
+          },
+          "conversation": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^conv_[0-9A-Za-z]+$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The associated conversation, or null.",
+            "x-description-es": "La conversación asociada, o null."
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The stored business notification text, trimmed and limited to 10,000 characters; null when blank. It can contain personal data and a source summary already copied into the notice. The API does not independently read or export message content, transcripts, call summaries, lead notes or technical errors.",
+            "x-description-es": "El texto guardado del aviso de negocio, sin espacios exteriores y limitado a 10.000 caracteres; null si está vacío. Puede contener datos personales y un resumen del origen ya copiado al aviso. La API no lee ni exporta por separado mensajes, transcripciones, resúmenes de llamadas, notas del lead o errores técnicos."
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "new",
+                  "read",
+                  "archived"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "`new`, `read` or `archived`; null for an unknown stored status. Reading the API never marks a notice read.",
+            "x-description-es": "`new`, `read` o `archived`; null para un estado guardado desconocido. Consultar la API nunca marca un aviso como leído."
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "call",
+              "chat",
+              "reminder",
+              "task",
+              "manual"
+            ],
+            "description": "The business source: call, chat, reminder, task or manual (also used for an absent source). Unknown and technical sources are excluded.",
+            "x-description-es": "El origen de negocio: call, chat, reminder, task o manual (también si no consta origen). Se excluyen los orígenes desconocidos y técnicos."
+          },
+          "handoff_reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "missed_team_appointment"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The recorded handoff reason, or null. No reason is inferred from the summary.",
+            "x-description-es": "El motivo de derivación registrado, o null. No se deduce ningún motivo a partir del resumen."
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "When the notification was created in Totem (UTC), or null.",
+            "x-description-es": "Cuándo se creó el aviso en Totem (UTC), o null."
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Increases every time one of the record's exported fields changes. Apply a change only when its version is greater than the one you hold.",
+            "x-description-es": "Aumenta cada vez que cambia alguno de los campos exportados del registro. Aplica un cambio solo si su versión es mayor que la que guardas."
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When Totem recorded this version (UTC). It is not the time the business event happened.",
+            "x-description-es": "Cuándo registró Totem esta versión (UTC). No es la hora en que ocurrió el hecho."
+          }
+        },
+        "required": [
+          "id",
+          "object",
+          "livemode",
+          "team",
+          "lead",
+          "call",
+          "conversation",
+          "summary",
+          "status",
+          "source",
+          "handoff_reason",
+          "created_at",
+          "version",
+          "updated_at"
+        ],
+        "description": "A business notification, including its summary and linked lead, call or conversation. Personal notes and technical alerts are excluded.",
+        "x-description-es": "Un aviso de negocio, con su resumen y el lead, llamada o conversación asociados. Se excluyen las notas personales y los avisos técnicos.",
+        "examples": [
+          {
+            "id": "ntf_m3mtwDFyaDSKmhf9rg7Ps201S8Jc4",
+            "object": "notification",
+            "livemode": false,
+            "team": "team_r9uYrIW4gSFJJ6hZQ9ip1UIpPaAD1CF7NR",
+            "lead": "lead_r72EfbRNUzuqORFJR0O8HxAwEXd93jGUTYMaMMXKSF0QbLS8CiUKJpEP34LFQG",
+            "call": null,
+            "conversation": "conv_m3GhGjRHmFbww1g10oqOp7j3gWqPJ",
+            "summary": "Alex requests a call from a person about the appointment.",
+            "status": "new",
+            "source": "chat",
+            "handoff_reason": null,
+            "created_at": "2026-10-01T08:58:00.000Z",
+            "version": 1,
+            "updated_at": "2026-10-01T08:58:30.000Z"
+          }
+        ]
+      },
+      "NotificationList": {
+        "type": "object",
+        "properties": {
+          "object": {
+            "type": "string",
+            "const": "list",
+            "description": "Always `list`.",
+            "x-description-es": "Siempre `list`."
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Notification"
+            },
+            "description": "The items of this page.",
+            "x-description-es": "Los elementos de esta página."
+          },
+          "has_more": {
+            "type": "boolean",
+            "description": "`true` when another page follows: fetch it with `next_cursor`, even if this page holds fewer items than `limit`.",
+            "x-description-es": "`true` si hay otra página: pídela con `next_cursor`, aunque esta traiga menos elementos que `limit`."
+          },
+          "next_cursor": {
+            "description": "Opaque cursor for the next page, or null on the last page. Never parse it.",
+            "x-description-es": "Cursor opaco de la página siguiente, o null en la última. No lo interpretes.",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "object",
+          "data",
+          "has_more",
+          "next_cursor"
+        ],
+        "description": "A page of Notification objects, in a stable order that carries no meaning.",
+        "x-description-es": "Una página de objetos Notification, en un orden estable sin significado.",
+        "examples": [
+          {
+            "object": "list",
+            "data": [
+              {
+                "id": "ntf_m3mtwDFyaDSKmhf9rg7Ps201S8Jc4",
+                "object": "notification",
+                "livemode": false,
+                "team": "team_r9uYrIW4gSFJJ6hZQ9ip1UIpPaAD1CF7NR",
+                "lead": "lead_r72EfbRNUzuqORFJR0O8HxAwEXd93jGUTYMaMMXKSF0QbLS8CiUKJpEP34LFQG",
+                "call": null,
+                "conversation": "conv_m3GhGjRHmFbww1g10oqOp7j3gWqPJ",
+                "summary": "Alex requests a call from a person about the appointment.",
+                "status": "new",
+                "source": "chat",
+                "handoff_reason": null,
+                "created_at": "2026-10-01T08:58:00.000Z",
+                "version": 1,
+                "updated_at": "2026-10-01T08:58:30.000Z"
               }
             ],
             "has_more": false,

@@ -2,7 +2,7 @@
 
 The official server-side SDK for the [Totem API](https://totemstudio.ai/developers).
 It covers every operation of the read-only API: leads, boards, activities,
-calls, conversations, bookings, teams, members, services and the changes feed.
+calls, conversations, bookings, notifications, teams, members, services and the changes feed.
 
 Requires **Node.js 22.12 or later** (the first release line where `require()`
 of an ES module works without a flag). Built and checked with **TypeScript
@@ -10,16 +10,22 @@ of an ES module works without a flag). Built and checked with **TypeScript
 
 ## Install
 
+This checkout prepares **0.2.0-beta.1, which is not published yet**. The
+commands below become usable after that release is published. The last
+published release is
+[0.1.0-beta.2](https://github.com/kiketordera/totem-studio-typescript/releases/tag/v0.1.0-beta.2),
+which does not include notification methods.
+
 Install the release tarball. It contains the built package, so it needs no
 Git, no build step and no install scripts, and it works with `ignore-scripts`.
 Download the tarball and its checksum, check it, then install the file you
 checked:
 
 ```sh
-curl -fLO https://github.com/kiketordera/totem-studio-typescript/releases/download/v0.1.0-beta.2/totemstudioai-sdk-0.1.0-beta.2.tgz
-curl -fLO https://github.com/kiketordera/totem-studio-typescript/releases/download/v0.1.0-beta.2/totemstudioai-sdk-0.1.0-beta.2.tgz.sha256
-shasum -a 256 -c totemstudioai-sdk-0.1.0-beta.2.tgz.sha256
-npm install ./totemstudioai-sdk-0.1.0-beta.2.tgz
+curl -fLO https://github.com/kiketordera/totem-studio-typescript/releases/download/v0.2.0-beta.1/totemstudioai-sdk-0.2.0-beta.1.tgz
+curl -fLO https://github.com/kiketordera/totem-studio-typescript/releases/download/v0.2.0-beta.1/totemstudioai-sdk-0.2.0-beta.1.tgz.sha256
+shasum -a 256 -c totemstudioai-sdk-0.2.0-beta.1.tgz.sha256
+npm install ./totemstudioai-sdk-0.2.0-beta.1.tgz
 ```
 
 `sha256sum -c` works as well as `shasum -a 256 -c`. The checksum shows that
@@ -38,7 +44,7 @@ allow `@totemstudioai/sdk`, or the install succeeds without a `dist/` and the
 import fails.
 
 ```sh
-npm install github:kiketordera/totem-studio-typescript#v0.1.0-beta.2
+npm install github:kiketordera/totem-studio-typescript#v0.2.0-beta.1
 ```
 
 The SDK is **not published to the npm registry yet**, so a package named
@@ -96,6 +102,7 @@ the authority for request validation and access control. A `baseUrl` on
 | `client.calls.list(query?)`, `client.calls.get(id)` | `GET /calls`, `GET /calls/{id}` |
 | `client.conversations.list(query?)`, `client.conversations.get(id)` | `GET /conversations`, `GET /conversations/{id}` |
 | `client.bookings.list(query?)`, `client.bookings.get(id)` | `GET /bookings`, `GET /bookings/{id}` |
+| `client.notifications.list(query?)`, `client.notifications.get(id)` | `GET /notifications`, `GET /notifications/{id}` |
 | `client.sync.changes(query?)` | `GET /sync/changes` |
 | `client.health()` | `GET /health` |
 
@@ -112,7 +119,7 @@ Optional settings and query values accept `undefined`, and a cursor accepts
 All wire types are generated from the checked-in `openapi.json`, with each
 field's documentation. Every schema has a named type: `Lead`, `LeadDetail`,
 `LeadAttribution`, `LeadResponse`, `Team`, `Board`, `Member`, `BookingService`,
-`Activity`, `Call`, `Conversation`, `Booking`, `Me`, `Health`, `Problem`, the
+`Activity`, `Call`, `Conversation`, `Booking`, `Notification`, `Me`, `Health`, `Problem`, the
 `…List` envelopes, `FeedItem` and `FeedPage`. `Schemas` is the full catalogue.
 The SDK adds `Stage` (one board stage), `FeedUpsert`, `FeedRemoval`,
 `FeedObjectOf<'lead'>` (the record a feed kind carries) and `isFeedRemoval`.
@@ -134,6 +141,42 @@ const result = await client.requestWithResponse('leads.get', {
 console.log(result.requestId, result.status);
 const lead = result.data;
 ```
+
+## Notifications in an external CRM
+
+Read team notifications just like leads. `notifications.list` accepts `limit`,
+`cursor`, and at most one of `lead` or `status` (`new`, `read`, `archived`):
+
+```ts
+for await (const notification of client.items('notifications.list', {
+  query: { limit: 100, status: 'new' },
+})) {
+  await upsertCrmAlert(notification.id, notification.summary, notification.lead);
+}
+const notification = await client.notifications.get('ntf_...');
+```
+
+The notification's public `ntf_…` id is a stable external deduplication key;
+store its `version` to apply later updates. Use the changes feed's
+`kind: 'notification'` records for incremental polling alongside leads, and
+apply notification removals to your copy too. `status` is Totem's team-wide
+state; reading the API does not mark it read or acknowledge the alert in Totem.
+An external CRM tracks its own acknowledgement state.
+
+When a lead, call or conversation is removed, immediately delete its linked
+notification copies and summaries too. Retain a removal fence for that source
+id: a later notification upsert that still links it must not restore the
+summary. Reset those fences with the team's versions when a full resync starts.
+
+[`examples/notifications.ts`](examples/notifications.ts) shows a typed snapshot
+import. Use [`examples/sync.ts`](examples/sync.ts) for subsequent status changes
+and removals too.
+
+`summary` is notification text intended for the team, including a request to
+call a lead. It can contain personal information. The API excludes personal
+notes and technical error alerts; it does not export conversation messages or
+call transcripts. Notification links (`lead`, `call`, `conversation`) are public
+ids when the related record can be exported, otherwise `null`.
 
 ## Pagination and synchronization
 
@@ -333,7 +376,7 @@ refuse it. That counts as one failed attempt for your key and address on the
 The script never prints or records that key.
 
 The fixture JSON may contain `teamId`, `leadId`, `callId`, `conversationId`,
-`bookingId`, `searchEmail`, `foreignLeadId` and `foreignTeamId`; otherwise the
+`bookingId`, `notificationId`, `searchEmail`, `foreignLeadId` and `foreignTeamId`; otherwise the
 script selects the first captured record in each collection, and it needs
 representative records for complete route coverage. `foreignLeadId` (a lead of
 a team the key does not read) adds the cross-team `404 resource_missing` check;

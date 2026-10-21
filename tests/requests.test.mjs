@@ -28,6 +28,9 @@ const routes = [
   ['conversation', client => client.conversations.get('conv_ABC'), 'GET', '/v1/conversations/conv_ABC', false],
   ['bookings', client => client.bookings.list(), 'GET', '/v1/bookings', true],
   ['booking', client => client.bookings.get('bkg_ABC'), 'GET', '/v1/bookings/bkg_ABC', false],
+  ['notifications', client => client.notifications.list({ limit: 2, status: 'new' }), 'GET', '/v1/notifications?limit=2&status=new', true],
+  ['lead notifications', client => client.notifications.list({ lead: 'lead_ABC' }), 'GET', '/v1/notifications?lead=lead_ABC', true],
+  ['notification', client => client.notifications.get('ntf_ABC'), 'GET', '/v1/notifications/ntf_ABC', false],
   ['changes', client => client.sync.changes({ limit: 1 }), 'GET', '/v1/sync/changes?limit=1', true],
   ['health', client => client.health(), 'GET', '/v1/health', false],
 ];

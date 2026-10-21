@@ -8,7 +8,7 @@
 import { TotemClient, TotemApiError, errorCatalogue, isFeedRemoval } from '../src/index.js'
 import type {
   Activity, Booking, ErrorAction, FeedItem, FeedObjectOf, FeedRemoval, FeedUpsert, Health, ItemOf, Lead, LeadAttribution, LeadList,
-  LeadResponse, Me, ResponseOf, Stage, TotemErrorCode,
+  LeadResponse, Me, Notification, NotificationList, ResponseOf, Stage, TotemErrorCode,
 } from '../src/index.js'
 
 declare const client: TotemClient
@@ -24,6 +24,23 @@ void version
 client.leads.search({ email: 'sdk@example.invalid' })
 client.request('leads.get', { path: { id: 'lead_ABC' } })
 client.request('leads.list', { query: { limit: 1, status: 'new' } })
+client.notifications.list({ limit: 100, cursor: null }, { team: 'team_A' })
+client.notifications.list({ status: 'new' })
+client.notifications.list({ status: 'read' })
+client.notifications.list({ status: 'archived' })
+client.notifications.list({ lead: 'lead_ABC' })
+client.notifications.get('ntf_ABC')
+client.items('notifications.list', { query: { limit: 100 } })
+// @ts-expect-error notification detail routes take the team from the record id
+client.notifications.get('ntf_ABC', { team: 'team_A' })
+// @ts-expect-error notification paths are required
+client.request('notifications.get')
+// @ts-expect-error notifications are read-only
+client.request('notifications.update', { path: { id: 'ntf_ABC' } })
+// @ts-expect-error notification status request enum stays closed
+client.notifications.list({ status: 'pending' })
+// @ts-expect-error notification creation is not exposed
+client.notifications.create({ summary: 'Call the lead' })
 // @ts-expect-error resource paths are required
 client.request('leads.get')
 // @ts-expect-error search bodies are required
@@ -66,6 +83,9 @@ declare const booking: Booking
 const futureStatus: Booking['status'] = 'future_status'
 const knownStatus: Booking['status'] = booking.status
 void futureStatus; void knownStatus
+const futureNotificationStatus: Notification['status'] = 'future_status'
+const missingNotificationSummary: Notification['summary'] = null
+void futureNotificationStatus; void missingNotificationSummary
 if (activity.type === 'stage_changed') {
   const stage: string | null = activity.to.stage
   void stage
@@ -80,7 +100,14 @@ if (isFeedRemoval(feed)) {
 } else if (feed.kind === 'lead_attribution') {
   const attribution: LeadAttribution = feed.object
   void attribution
+} else if (feed.kind === 'notification') {
+  const notification: Notification = feed.object
+  void notification
 }
+const notificationOfKind: FeedObjectOf<'notification'> = {} as Notification
+const notificationPage: NotificationList = {} as ResponseOf<'notifications.list'>
+const notificationItem: ItemOf<'notifications.list'> = {} as Notification
+void notificationOfKind; void notificationPage; void notificationItem
 const objectOfKind: FeedObjectOf<'lead_response'> = {} as LeadResponse
 const stage: Stage['id'] = 'stg_1'
 void objectOfKind; void stage

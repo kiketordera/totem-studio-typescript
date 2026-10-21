@@ -23,13 +23,14 @@ try {
   run('npm', ['install', join(temporary, archive), '--ignore-scripts', '--no-audit', '--no-fund', '--package-lock=false']);
 
   await writeFile(join(temporary, 'index.ts'), `import { TotemClient, TotemApiError, isFeedRemoval } from '@totemstudioai/sdk';
-import type { Lead, FeedPage } from '@totemstudioai/sdk';
+import type { Lead, Notification, FeedPage } from '@totemstudioai/sdk';
 declare const team: string | undefined;
 const client = new TotemClient({ apiKey: 'tsk_live_fictitious_pack_test', team, fetch: async () => Response.json({ object: 'list', data: [], has_more: false, next_cursor: null }) });
 const page = await client.leads.list({ limit: 1, status: 'new', cursor: null });
 const leads: Lead[] = page.data;
+const notifications: Notification[] = (await client.notifications.list({ limit: 1 })).data;
 const feed: AsyncGenerator<FeedPage> = client.pages('sync.changes');
-void leads; void feed; void TotemApiError; void isFeedRemoval;
+void leads; void notifications; void feed; void TotemApiError; void isFeedRemoval;
 if (page.data.length !== 0) throw new Error('Packed SDK returned the wrong page');
 // @ts-expect-error unknown query key must fail for installed consumers too
 client.leads.list({ invalid_filter: true });

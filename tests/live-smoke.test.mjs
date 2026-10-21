@@ -108,7 +108,7 @@ test('live runner covers every operation and tenant check against an edge-like f
   assert.deepEqual(result.receipt.skippedChecks, []);
   assert.equal(result.receipt.serverRelease, RELEASE);
   assert.equal(result.receipt.syncPages, 2);
-  assert.deepEqual(result.receipt.feedVariants, ['call:removed', 'lead', 'lead_response']);
+  assert.deepEqual(result.receipt.feedVariants, ['call:removed', 'lead', 'lead_response', 'notification', 'notification:removed']);
   // The invalid-credentials check presented exactly one other key: well-formed, same lookup id, another secret.
   const others = [...result.presented].filter(token => token !== LIVE_KEY);
   assert.equal(others.length, 1);
@@ -192,12 +192,24 @@ test('provider problem messages, malicious request ids and releases never reach 
   assert.equal(/PRIVATE/.test(result.output + result.receiptText), false);
   assert.deepEqual(result.receipt.failure, { code: 'api_error', status: 503, apiCode: null, requestId: null, operation: 'health', check: null, schemaCode: null, schemaPath: null, missingFixture: null });
 });
-test('a team with no records names the fixture it needs', async context => {
-  const result = await runSmoke(context, edge({ override: ({ operation }) => operation.operationId === 'leads.list' ? { headers: { 'Totem-Request-Id': REQUEST_ID }, body: { object: 'list', data: [], has_more: false, next_cursor: null } } : undefined }));
-  assert.equal(result.exitCode, 1);
-  assert.equal(result.receipt.failure.code, 'fixture_missing');
-  assert.equal(result.receipt.failure.missingFixture, 'leadId');
-  assert.match(result.output, /needs leadId/);
+for (const [resource, fixture] of [['leads', 'leadId'], ['notifications', 'notificationId']]) {
+  test(`an empty ${resource} collection names the fixture it needs`, async context => {
+    const result = await runSmoke(context, edge({ override: ({ operation }) => operation.operationId === `${resource}.list` ? { headers: { 'Totem-Request-Id': REQUEST_ID }, body: { object: 'list', data: [], has_more: false, next_cursor: null } } : undefined }));
+    assert.equal(result.exitCode, 1);
+    assert.equal(result.receipt.failure.code, 'fixture_missing');
+    assert.equal(result.receipt.failure.missingFixture, fixture);
+    assert.match(result.output, new RegExp(`needs ${fixture}`));
+  });
+}
+test('an explicit notification fixture covers its detail route when its list is empty', async context => {
+  const requests = [];
+  const result = await runSmoke(context, edge({ override: ({ operation, url }) => {
+    requests.push(url.pathname);
+    if (operation.operationId === 'notifications.list') return { headers: { 'Totem-Request-Id': REQUEST_ID }, body: { object: 'list', data: [], has_more: false, next_cursor: null } };
+  } }), { fixtures: { ...FOREIGN, notificationId: 'ntf_FIXTURE' } });
+  assert.equal(result.exitCode, 0, result.output);
+  assert.ok(result.receipt.coveredOperations.includes('notifications.get'));
+  assert.ok(requests.includes('/v1/notifications/ntf_FIXTURE'));
 });
 for (const [label, reason, options] of [
   ['key file readable by others', 'key_file_mode', { keyMode: 0o644 }],

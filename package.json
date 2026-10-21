@@ -1,6 +1,6 @@
 {
   "name": "@totemstudioai/sdk",
-  "version": "0.1.0-beta.2",
+  "version": "0.2.0-beta.1",
   "description": "Official server-side TypeScript SDK for the Totem Studio public API (Beta)",
   "type": "module",
   "license": "MIT",

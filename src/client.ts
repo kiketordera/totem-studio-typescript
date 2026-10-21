@@ -2,7 +2,7 @@ import { TotemProtocolError } from './errors.js'
 import { Transport, type WireInput } from './transport.js'
 import type {
   ActivityList, BodyOf, Booking, BookingList, Call, CallList, ClientOptions, Conversation, ConversationList, FeedPage, Health, ItemOf, ItemsOperationId,
-  LeadDetail, LeadList, ListOperationId, Me, OperationId, OptionsOf, QueryOf, RequestArgs, ResponseInfo, ResponseOf, BoardList, Team,
+  LeadDetail, LeadList, ListOperationId, Me, Notification, NotificationList, OperationId, OptionsOf, QueryOf, RequestArgs, ResponseInfo, ResponseOf, BoardList, Team,
 } from './types.js'
 
 /** Server-side client for the read-only Totem API. Every method returns the documented JSON body; errors are `TotemError` subclasses. */
@@ -68,6 +68,12 @@ export class TotemClient {
     list: (query: QueryOf<'bookings.list'> = {}, options: OptionsOf<'bookings.list'> = {}): Promise<BookingList> => this.request('bookings.list', { ...options, query }),
     /** One booking. `GET /bookings/{id}` */
     get: (id: string, options: OptionsOf<'bookings.get'> = {}): Promise<Booking> => this.request('bookings.get', { ...options, path: { id } }),
+  }
+  readonly notifications = {
+    /** A page of the team's notifications; filter by at most one of `lead` and `status`. `GET /notifications` */
+    list: (query: QueryOf<'notifications.list'> = {}, options: OptionsOf<'notifications.list'> = {}): Promise<NotificationList> => this.request('notifications.list', { ...options, query }),
+    /** One notification. `GET /notifications/{id}` */
+    get: (id: string, options: OptionsOf<'notifications.get'> = {}): Promise<Notification> => this.request('notifications.get', { ...options, path: { id } }),
   }
   readonly sync = {
     /** The next page of one team's changes feed. Save its `next_cursor` after applying it, even when the page is empty. `GET /sync/changes` */

@@ -3,20 +3,30 @@
 The SDK follows the Totem API Beta. Until 1.0, a minor or prerelease version
 can change types or behaviour; each entry lists what to adapt.
 
-## Unreleased
+## 0.2.0-beta.1 (unreleased)
 
-Not released. `main` still reports `SDK_VERSION` `0.1.0-beta.2`, but its
-`CONTRACT_SHA256` differs from the published 0.1.0-beta.2 tarball: tell the two
-apart by `CONTRACT_SHA256`. The next release bumps the version.
+Prepared locally; the GitHub release and npm package have not been published.
+
+### Added
+
+- `client.notifications.list(query?)` and `client.notifications.get(id)` for
+  team notifications, with `Notification` and `NotificationList` wire types.
+  Lists accept pagination and one of `lead` or `status` (`new`, `read`,
+  `archived`). Reads never change a notification's status.
+- Notification upserts and removals in the changes feed (`kind:
+  'notification'`), typed by `FeedItem` and `FeedObjectOf<'notification'>`.
+  Consumers with an exhaustive feed-kind switch must add the new kind.
+- The live smoke runner covers both notification endpoints and accepts an
+  optional `notificationId` fixture. Packed-consumer verification includes the
+  notification resource and its exported type.
 
 ### Contract
 
 - Generated from the API contract with SHA-256
-  `c29a97ac25b42133dce168471220f8579aa4016ef4942d0b204809cd9ac0b9c4` (`CONTRACT_SHA256`).
+  `7361cddfda728713c709b372f9caf39a41251e914e4dc58fa7a8995992402581` (`CONTRACT_SHA256`).
 - `calls.list`, `conversations.list` and `bookings.list` accept an optional
   `lead` (`lead_…`) in their query: one lead's calls, conversations or
-  bookings. The other changes are documentation comments: no other type, method
-  or runtime behaviour.
+  bookings.
 - `leads.search` by `phone` also matches the number stored in the layouts phone
   libraries write (`+1 202-555-0123`, `(202) 555-0123`, `2025550123`).
 - Error catalogue: `sector_restricted` is no longer reserved. Totem returns it

@@ -12,7 +12,7 @@ import { operationDefinitions } from '../dist/generated/operations.js';
 import { parseSecretKey, wrongSecretKey } from './key-format.mjs';
 import { ResponseValidationError, VALIDATION_CODES, validateResponse } from './schema-validation.mjs';
 
-const FIXTURE_FIELDS = ['teamId', 'leadId', 'callId', 'conversationId', 'bookingId', 'searchEmail', 'foreignLeadId', 'foreignTeamId'];
+const FIXTURE_FIELDS = ['teamId', 'leadId', 'callId', 'conversationId', 'bookingId', 'notificationId', 'searchEmail', 'foreignLeadId', 'foreignTeamId'];
 const SYNC_PAGE_BUDGET = 5;
 const SAFE_SCHEMA_PATH = /^\$(?:\.[A-Za-z0-9_]+|\[\d+\]|\.\*)*$/;
 const safeRelease = value => typeof value === 'string' && /^[0-9a-f]{7,40}$/.test(value) ? value : null;
@@ -142,8 +142,8 @@ async function main() {
     await run('members.list');
     await run('booking_services.list');
     const rows = {};
-    for (const resource of ['leads', 'calls', 'conversations', 'bookings']) rows[resource] = await run(`${resource}.list`, { query: { limit: 1 } });
-    for (const [resource, fixture] of [['leads', 'leadId'], ['calls', 'callId'], ['conversations', 'conversationId'], ['bookings', 'bookingId']]) {
+    for (const resource of ['leads', 'calls', 'conversations', 'bookings', 'notifications']) rows[resource] = await run(`${resource}.list`, { query: { limit: 1 } });
+    for (const [resource, fixture] of [['leads', 'leadId'], ['calls', 'callId'], ['conversations', 'conversationId'], ['bookings', 'bookingId'], ['notifications', 'notificationId']]) {
       const id = fixtures[fixture] ?? rows[resource].data[0]?.id;
       if (!id) throw new FixtureMissingError(fixture);
       await run(`${resource}.get`, { path: { id } });
